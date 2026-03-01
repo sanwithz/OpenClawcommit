@@ -99,8 +99,3 @@ When designing frontend, integrate these CDNs:
   - **5-hour window**, or
   - **daily window**
 - Then immediately switch fallback primary to **Kimi (`moonshot/kimi-k2.5`)** and notify user.
-
-## Active Model Stack (Current)
-1. **Primary (main chat):** `openai-codex/gpt-5.3-codex`
-2. **Fallback policy:** `moonshot/kimi-k2.5` (when quota < 15%)
-3. **On-demand:** Claude Code via command `run in claude code: ...`
