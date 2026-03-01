@@ -1,0 +1,2 @@
+datetime,symbol,side,leverage,entry,exit,pnl_usdt,capital_usdt,notes
+2026-02-23 07:49:51,BTCUSDT,SHORT,25,67653.29,67061.4,15.38,1500,"Closed and confirmed by screenshot"

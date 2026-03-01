@@ -1,0 +1,278 @@
+<!-- Coffee Loyalty - Staff Dashboard -->
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ร้านกาแฟ - ระบบสะสมคะแนน</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f5f0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #4a3728;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #666;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        button {
+            background: #4a3728;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        button:hover {
+            background: #5c4535;
+        }
+        .customer-info {
+            background: #faf8f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        .tier-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .tier-bronze { background: #cd7f32; color: white; }
+        .tier-silver { background: #c0c0c0; color: white; }
+        .tier-gold { background: #ffd700; color: #333; }
+        .tier-platinum { background: #e5e4e2; color: #333; }
+        .points-display {
+            font-size: 32px;
+            font-weight: bold;
+            color: #4a3728;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .summary-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .summary-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4a3728;
+        }
+        .summary-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>☕ ระบบสะสมคะแนน</h1>
+        
+        <!-- ค้นหาลูกค้า -->
+        <div class="card">
+            <h3>🔍 ค้นหาลูกค้า</h3>
+            <div class="input-group">
+                <label>เบอร์โทรศัพท์</label>
+                <input type="tel" id="phoneInput" placeholder="0812345678">
+            </div>
+            <button onclick="lookupCustomer()">ค้นหา</button>
+            
+            <div id="customerInfo" class="customer-info hidden">
+                <h4>
+                    <span id="customerName"></span>
+                    <span id="tierBadge" class="tier-badge"></span>
+                </h4>
+                <div class="points-display">
+                    <span id="totalPoints">0</span> คะแนน
+                </div>
+                <div class="summary">
+                    <div class="summary-item">
+                        <div class="summary-value" id="lifetimeSpent">0</div>
+                        <div class="summary-label">ยอดซื้อสะสม (บาท)</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value" id="tierName">-</div>
+                        <div class="summary-label">ระดับสมาชิก</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- สร้างออเดอร์ -->
+        <div class="card">
+            <h3>🛒 สร้างออเดอร์</h3>
+            <div class="input-group">
+                <label>ยอดซื้อ (บาท)</label>
+                <input type="number" id="amountInput" placeholder="0">
+            </div>
+            <div class="input-group">
+                <label>ใช้คะแนนแลก (ถ้ามี)</label>
+                <input type="number" id="redeemInput" placeholder="0" value="0">
+            </div>
+            <button onclick="createOrder()">บันทึกออเดอร์</button>
+        </div>
+
+        <!-- ผลลัพธ์ -->
+        <div id="result" class="card hidden">
+            <h3>✅ สำเร็จ</h3>
+            <div id="resultContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let currentCustomer = null;
+
+        async function lookupCustomer() {
+            const phone = document.getElementById('phoneInput').value;
+            if (!phone) return alert('กรุณากรอกเบอร์โทร');
+
+            try {
+                const res = await fetch(`${API_URL}/customers/${phone}`);
+                const data = await res.json();
+                
+                if (data.success) {
+                    currentCustomer = data.customer;
+                    displayCustomer(data.customer);
+                } else {
+                    // ถ้าไม่พอ → เสนอลงทะเบียน
+                    if (confirm('ไม่พบลูกค้า ต้องการลงทะเบียนใหม่มั้ย?')) {
+                        registerCustomer(phone);
+                    }
+                }
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        async function registerCustomer(phone) {
+            const name = prompt('กรุณากรอกชื่อลูกค้า:');
+            if (!name) return;
+
+            try {
+                const res = await fetch(`${API_URL}/customers/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, name })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    currentCustomer = data.customer;
+                    displayCustomer(data.customer);
+                    alert('ลงทะเบียนสำเร็จ!');
+                }
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        function displayCustomer(customer) {
+            document.getElementById('customerInfo').classList.remove('hidden');
+            document.getElementById('customerName').textContent = customer.name;
+            document.getElementById('totalPoints').textContent = customer.total_points;
+            document.getElementById('lifetimeSpent').textContent = customer.lifetime_spent;
+            document.getElementById('tierName').textContent = 
+                customer.tier === 'bronze' ? 'บรอนซ์' :
+                customer.tier === 'silver' ? 'ซิลเวอร์' :
+                customer.tier === 'gold' ? 'โกลด์' : 'แพลทินัม';
+            
+            const badge = document.getElementById('tierBadge');
+            badge.className = 'tier-badge tier-' + customer.tier;
+            badge.textContent = customer.tier.toUpperCase();
+        }
+
+        async function createOrder() {
+            if (!currentCustomer) {
+                alert('กรุณาค้นหาลูกค้าก่อน');
+                return;
+            }
+
+            const amount = parseFloat(document.getElementById('amountInput').value);
+            const redeem = parseInt(document.getElementById('redeemInput').value) || 0;
+
+            if (!amount || amount <= 0) {
+                alert('กรุณากรอกยอดซื้อ');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/orders`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        customer_phone: currentCustomer.phone,
+                        total_amount: amount,
+                        redeem_points: redeem
+                    })
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    displayResult(data);
+                    // Refresh customer data
+                    lookupCustomer();
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        function displayResult(data) {
+            document.getElementById('result').classList.remove('hidden');
+            document.getElementById('resultContent').innerHTML = `
+                <p><strong>ได้รับคะแนน:</strong> +${data.points_earned}</p>
+                <p><strong>ใช้คะแนน:</strong> -${data.points_redeemed}</p>
+                <p><strong>คะแนนคงเหลือ:</strong> ${data.new_total_points}</p>
+                ${data.tier_upgraded ? `<p style="color: green;"><strong>🎉 อัพเกรดเป็น ${data.tier_upgraded}!</strong></p>` : ''}
+            `;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!doctype html>
+<html>
+  <head>
+    <base target="_top" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kru Bank Form</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- JQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <!-- Loading Overlay -->
+    <script src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@2.1.7/dist/loadingoverlay.min.js"></script>
+    <!-- Sweet Alert -->
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- ApexCharts -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <!-- Lucide Icons (Standalone) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                50: '#eef5ff',
+                500: '#2f6fed',
+                700: '#1f4fc5'
+              }
+            },
+            boxShadow: {
+              soft: '0 10px 30px rgba(47, 111, 237, 0.18)'
+            }
+          }
+        }
+      }
+    </script>
+  </head>
+  <body class="min-h-screen bg-slate-50 text-slate-800">
+    <main class="max-w-5xl mx-auto p-4 md:p-8 grid md:grid-cols-3 gap-6">
+      <section class="md:col-span-2 bg-white rounded-2xl shadow-soft p-6 md:p-8 border border-slate-100">
+        <div class="flex items-center gap-3 mb-6">
+          <span class="w-10 h-10 rounded-xl bg-brand-50 text-brand-700 flex items-center justify-center">
+            <i class="fa-solid fa-file-signature"></i>
+          </span>
+          <div>
+            <h1 class="text-2xl font-bold">Contact Form</h1>
+            <p class="text-sm text-slate-500">Google Apps Script + CDN-enhanced UI</p>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Full Name <span class="text-rose-600">*</span></label>
+            <input id="fullName" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all font-mono" placeholder="Your full name" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Email <span class="text-rose-600">*</span></label>
+            <input id="email" type="email" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all font-mono" placeholder="you@example.com" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Phone</label>
+            <input id="phone" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all font-mono" placeholder="08x-xxx-xxxx" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Topic <span class="text-rose-600">*</span></label>
+            <select id="topic" class="w-full pl-4 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all font-mono">
+              <option value="">-- Select --</option>
+              <option>Consulting</option>
+              <option>Training</option>
+              <option>Automation Project</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Message</label>
+            <textarea id="message" rows="4" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-gray-900 focus:border-transparent outline-none transition-all font-mono" placeholder="Tell me what you need..."></textarea>
+          </div>
+
+          <button id="btn" onclick="onSubmit()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-500 text-white font-semibold hover:bg-brand-700 transition">
+            <i class="fa-solid fa-paper-plane"></i>
+            Submit
+          </button>
+        </div>
+      </section>
+
+      <aside class="bg-white rounded-2xl border border-slate-100 p-5 md:p-6">
+        <h2 class="font-semibold mb-3 flex items-center gap-2"><i data-lucide="bar-chart-3" class="w-4 h-4"></i> Live Topic Preview</h2>
+        <div id="chart" class="h-64"></div>
+        <p class="text-xs text-slate-500 mt-3">Demo chart (ApexCharts) for UI enrichment.</p>
+      </aside>
+    </main>
+
+    <script>
+      let chart;
+
+      function initChart() {
+        const options = {
+          chart: { type: 'donut', height: 260 },
+          series: [44, 21, 17, 18],
+          labels: ['Consulting', 'Training', 'Automation', 'Other'],
+          colors: ['#2f6fed', '#38bdf8', '#10b981', '#f59e0b'],
+          legend: { position: 'bottom' },
+          dataLabels: { enabled: false }
+        };
+        chart = new ApexCharts(document.querySelector('#chart'), options);
+        chart.render();
+      }
+
+      function onSubmit() {
+        const payload = {
+          fullName: $('#fullName').val(),
+          email: $('#email').val(),
+          phone: $('#phone').val(),
+          topic: $('#topic').val(),
+          message: $('#message').val()
+        };
+
+        if (!payload.fullName || !payload.email || !payload.topic) {
+          Swal.fire({ icon: 'warning', title: 'Missing fields', text: 'Please fill required fields.' });
+          return;
+        }
+
+        $.LoadingOverlay('show', { imageColor: '#2f6fed' });
+        $('#btn').prop('disabled', true);
+
+        google.script.run
+          .withSuccessHandler((res) => {
+            $.LoadingOverlay('hide');
+            $('#btn').prop('disabled', false);
+
+            if (res.ok) {
+              confetti({ particleCount: 120, spread: 70, origin: { y: 0.6 } });
+              Swal.fire({ icon: 'success', title: 'Submitted!', text: `Ref ID: ${res.id}` });
+              $('#fullName, #email, #phone, #message').val('');
+              $('#topic').val('');
+            } else {
+              Swal.fire({ icon: 'error', title: 'Submit failed', text: res.error || 'Unknown error' });
+            }
+          })
+          .withFailureHandler((err) => {
+            $.LoadingOverlay('hide');
+            $('#btn').prop('disabled', false);
+            Swal.fire({ icon: 'error', title: 'Network error', text: err?.message || 'Please try again.' });
+          })
+          .submitForm(payload);
+      }
+
+      window.addEventListener('DOMContentLoaded', () => {
+        initChart();
+        if (window.lucide) lucide.createIcons();
+      });
+    </script>
+  </body>
+</html>

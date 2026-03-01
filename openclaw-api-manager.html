@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenClaw API Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .tab-active { @apply border-b-2 border-blue-500 text-blue-600; }
+        .endpoint-card { @apply bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow; }
+        .response-box { @apply bg-gray-900 text-green-400 font-mono text-sm p-4 rounded-lg overflow-auto max-h-96; }
+        .btn-primary { @apply bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors; }
+        .btn-secondary { @apply bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors; }
+        .input-field { @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-gray-900">OpenClaw API Manager</h1>
+                    <p class="text-sm text-gray-500">Manage all your OpenClaw endpoints in one place</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <span id="connectionStatus" class="flex items-center gap-2 text-sm text-gray-600">
+                    <span class="w-2 h-2 bg-gray-400 rounded-full"></span>
+                    Checking...
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 py-6">
+        <!-- Gateway Config -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                </svg>
+                Gateway Configuration
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Gateway URL</label>
+                    <input type="text" id="gatewayUrl" class="input-field" placeholder="http://localhost:3333" value="http://localhost:3333">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Token (optional)</label>
+                    <input type="password" id="gatewayToken" class="input-field" placeholder="your-token-here">
+                </div>
+                <div class="flex items-end">
+                    <button onclick="testConnection()" class="btn-primary w-full">
+                        Test Connection
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="border-b border-gray-200 mb-6">
+            <nav class="flex gap-6">
+                <button onclick="switchTab('gateway')" id="tab-gateway" class="tab-active pb-3 text-sm font-medium text-gray-900">
+                    Gateway
+                </button>
+                <button onclick="switchTab('nodes')" id="tab-nodes" class="pb-3 text-sm font-medium text-gray-500 hover:text-gray-700">
+                    Nodes
+                </button>
+                <button onclick="switchTab('sessions')" id="tab-sessions" class="pb-3 text-sm font-medium text-gray-500 hover:text-gray-700">
+                    Sessions
+                </button>
+                <button onclick="switchTab('browser')" id="tab-browser" class="pb-3 text-sm font-medium text-gray-500 hover:text-gray-700">
+                    Browser
+                </button>
+                <button onclick="switchTab('canvas')" id="tab-canvas" class="pb-3 text-sm font-medium text-gray-500 hover:text-gray-700">
+                    Canvas
+                </button>
+                <button onclick="switchTab('messages')" id="tab-messages" class="pb-3 text-sm font-medium text-gray-500 hover:text-gray-700">
+                    Messages
+                </button>
+            </nav>
+        </div>
+
+        <!-- Gateway Tab -->
+        <div id="content-gateway" class="tab-content">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="endpoint-card">
+                    <h3 class="font-medium text-gray-900 mb-2">Gateway Status</h3>
+                    <p class="text-sm text-gray-500 mb-3">Get current gateway status and health</p>
+                    <button onclick="callApi('gateway', 'status')" class="btn-primary">Get Status</button>
+                </div>
+                <div class="endpoint-card">
+                    <h3 class="font-medium text-gray-900 mb-2">Start Gateway</h3>
+                    <p class="text-sm text-gray-500 mb-3">Start the OpenClaw gateway service</p>
+                    <button onclick="callApi('gateway', 'start')" class="btn-primary">Start</button>
+                </div>
+                <div class="endpoint-card">
+                    <h3 class="font-medium text-gray-900 mb-2">Stop Gateway</h3>
+                    <p class="text-sm text-gray-500 mb-3">Stop the OpenClaw gateway service</p>
+                    <button onclick="callApi('gateway', 'stop')" class="btn-secondary">Stop</button>
+                </div>
+                <div class="endpoint-card">
+                    <h3 class="font-medium text-gray-900 mb-2">Restart Gateway</h3>
+                    <p class="text-sm text-gray-500 mb-3">Restart the OpenClaw gateway service</p>
+                    <button onclick="callApi('gateway', 'restart')" class="btn-secondary">Restart</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nodes Tab -->
+        <div id="content-nodes" class="tab-content hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="endpoint-card">
+                    <h3 class="font-medium text-gray-900 mb-2">List Nodes</h3>
+                    <p class="text-sm text-gray-500 mb-3">Get all paired nodes and their status</p>
+                    <button onclick="callApi('nodes', 'status')" class="btn-primary">List Nodes</button>
+                </div>
+                <div class="endpoint-card">
+                    <h3 class="font-medium text-gray-900 mb-2">Describe Node</h3>
+                    <p class="text-sm text-gray-500 mb-3">Get detailed info about a specific node</p>
+                    <div class="flex gap-2">
+                        <input type="text" id="nodeId" class="input-field flex-1" placeholder="node-id">
+                        <button onclick="callApi('nodes', 'describe', {node: document.getElementById('nodeId').value})" class="btn-primary">Describe</button>
+                    </div>
+                </div>
+                <div class="endpoint-card">
+                    <h3 class="font-medium text-gray-900 mb-2">Camera Snap</h3>
+                    <p class="text-sm text-gray-500 mb-3">Capture photo from paired device camera</p>
+                    <div class="flex gap-2">
+                        <select id="cameraFacing" class="input-field w-24">
+                            <option value="back">Back</option>
+                            <option value="front">Front</option>
+                        </select>
+                        <button onclick="callApi('nodes', 'camera_snap', {facing: document.getElementById('cameraFacing').value})" class="btn-primary flex-1">Snap</button>
+                    </div>
+                </div>
+                <div class="endpoint-card">
+                    <h3 class="font-medium text-gray-900 mb-2">Send Notification</h3>
+                    <p class="text-sm text-gray-500 mb-3">Send notification to paired device</p>
+                    <div class="space-y-2">
+                        <input type="text" id="notifyTitle" class="input-field" placeholder="Title">
+                        <input type="text" id="notifyBody" class="input-field" placeholder="Body">
+                        <button onclick="callApi('nodes', 'notify', {title: document.getElementById('notifyTitle').value, body: document.getElementById('notifyBody').value})" class="btn-primary w-full">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sessions Tab -->
+        <div id="content-sessions" class="tab-content hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="endpoint-card">
+                    <h3 class="font-medium text-gray-900 mb-2">List Sessions</h3>
+                    <p class="text-sm text-gray-500 mb-3">Get all active sessions</p>
+                    <button onclick="callApi('sessions', 'list')" class="btn-primary">List Sessions</button>
+                </div>
+                <div class="endpoint-card">
+                    <h3 class="font-medium text-gray-900 mb-2">Session History</h3>
+                    <p class="text-sm text-gray-500 mb-3">Get message history for a session</p>
+                    <div class="flex gap-2">
+                        <input type="text" id="sessionKey" class="input-field flex-1" placeholder="session-key">
+                        <button onclick="callApi('sessions', 'history', {sessionKey: document.getElementById('sessionKey').value})" class="btn-primary">Get</button>
+                    </div>
+                </div>
+                <div class="endpoint-card">
+                    <h3 class="font-medium text-gray-900 mb-2">Send Message</h3>
+                    <p class="text-sm text-gray-500 mb-3">Send a message to another session</p>
+                    <div class="space-y-2">
+                        <input type="text" id="targetSession" class="input-field" placeholder="Target session key">
+                        <textarea id="sessionMessage" class="input-field" rows="2" placeholder="Message..."></textarea>
+                        <button onclick="callApi('sessions', 'send', {sessionKey: document.getElementById('targetSession').value, message: document.getElementById('sessionMessage').value})" class="btn-primary w-full">Send</button>
+                    </div>
+                </div>
+                <div class="endpoint-card">
+                    <h3 class="font-medium text-gray-900 mb-2">Spawn Session</h3>
+                    <p class="text-sm text-gray-500 mb-3">Create a new isolated session</p>
+                    <div class="space-y-2">
+                        <input type="text" id="spawnTask" class="input-field" placeholder="Task description">
+                        <button onclick="callApi('sessions', 'spawn', {task: document.getElementById('spawnTask').value, mode: 'run'})" class="btn-primary w-full">Spawn</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Browser Tab -->
+        <div id="content-browser" class="tab-content hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="endpoint-card">
+                    <h3 class="font-medium text-gray-900 mb-2">Browser Status</h3>
+                    <p class="text-sm text-gray-500 mb-3">Check browser connection status</p>
+                    <button onclick="callApi('browser', 'status')" class="btn-primary">Get Status</button>
+                </div>
+                <div class="endpoint-card">
+                    <h3 class="font-medium text-gray-900 mb-2">List Tabs</h3>
+                    <p class="text-sm text-gray-500 mb-3">Get all open browser tabs</p>
+                    <button onclick="callApi('browser', 'tabs')" class="btn-primary">List Tabs</button>
+                </div>
+                <div class="endpoint-card">
+                    <h3 class="font-medium text-gray-900 mb-2">Navigate</h3>
+                    <p class="text-sm text-gray-500 mb-3">Navigate to a URL</p>
+                    <div class="flex gap-2">
+                        <input type="text" id="navUrl" class="input-field flex-1" placeholder="https://example.com">
+                        <button onclick="callApi('browser', 'navigate', {url: document.getElementById('navUrl').value})" class="btn-primary">Go</button>
+                    </div>
+                </div>
+                <div class="endpoint-card">
+                    <h3 class="font-medium text-gray-900 mb-2">Take Screenshot</h3>
+                    <p class="text-sm text-gray-500 mb-3">Capture browser screenshot</p>
+                    <button onclick="callApi('browser', 'screenshot')" class="btn-primary">Capture</button>
+                </div>
+                <div class="endpoint-card">
+                    <h3 class="font-medium text-gray-900 mb-2">Page Snapshot</h3>
+                    <p class="text-sm text-gray-500 mb-3">Get page structure and elements</p>
+                    <button onclick="callApi('browser', 'snapshot')" class="btn-primary">Get Snapshot</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Canvas Tab -->
+        <div id="content-canvas" class="tab-content hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="endpoint-card">
+                    <h3 class="font-medium text-gray-900 mb-2">Present Canvas</h3>
+                    <p class="text-sm text-gray-500 mb-3">Show the canvas window</p>
+                    <button onclick="callApi('canvas', 'present')" class="btn-primary">Present</button>
+                </div>
+                <div class="endpoint-card">
+                    <h3 class="font-medium text-gray-900 mb-2">Hide Canvas</h3>
+                    <p class="text-sm text-gray-500 mb-3">Hide the canvas window</p>
+                    <button onclick="callApi('canvas', 'hide')" class="btn-secondary">Hide</button>
+                </div>
+                <div class="endpoint-card">
+                    <h3 class="font-medium text-gray-900 mb-2">Canvas Snapshot</h3>
+                    <p class="text-sm text-gray-500 mb-3">Capture canvas screenshot</p>
+                    <button onclick="callApi('canvas', 'snapshot')" class="btn-primary">Snapshot</button>
+                </div>
+                <div class="endpoint-card">
+                    <h3 class="font-medium text-gray-900 mb-2">Navigate Canvas</h3>
+                    <p class="text-sm text-gray-500 mb-3">Load URL in canvas browser</p>
+                    <div class="flex gap-2">
+                        <input type="text" id="canvasUrl" class="input-field flex-1" placeholder="https://example.com">
+                        <button onclick="callApi('canvas', 'navigate', {url: document.getElementById('canvasUrl').value})" class="btn-primary">Go</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages Tab -->
+        <div id="content-messages" class="tab-content hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="endpoint-card">
+                    <h3 class="font-medium text-gray-900 mb-2">Send Message</h3>
+                    <p class="text-sm text-gray-500 mb-3">Send message to a channel/user</p>
+                    <div class="space-y-2">
+                        <input type="text" id="msgTarget" class="input-field" placeholder="Target (user or channel)">
+                        <textarea id="msgContent" class="input-field" rows="2" placeholder="Message content..."></textarea>
+                        <button onclick="callApi('message', 'send', {target: document.getElementById('msgTarget').value, message: document.getElementById('msgContent').value})" class="btn-primary w-full">Send</button>
+                    </div>
+                </div>
+                <div class="endpoint-card">
+                    <h3 class="font-medium text-gray-900 mb-2">React to Message</h3>
+                    <p class="text-sm text-gray-500 mb-3">Add emoji reaction to a message</p>
+                    <div class="space-y-2">
+                        <input type="text" id="reactMsgId" class="input-field" placeholder="Message ID">
+                        <input type="text" id="reactEmoji" class="input-field" placeholder="Emoji (e.g., 👍)">
+                        <button onclick="callApi('message', 'react', {messageId: document.getElementById('reactMsgId').value, emoji: document.getElementById('reactEmoji').value})" class="btn-primary w-full">React</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Response Panel -->
+        <div class="mt-6 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    Response
+                </h2>
+                <div class="flex gap-2">
+                    <button onclick="clearResponse()" class="btn-secondary text-sm">Clear</button>
+                    <button onclick="copyResponse()" class="btn-secondary text-sm">Copy</button>
+                </div>
+            </div>
+            <pre id="responseBox" class="response-box">// Response will appear here...</pre>
+        </div>
+    </main>
+
+    <script>
+        // Tab switching
+        function switchTab(tab) {
+            // Hide all content
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            // Show selected
+            document.getElementById(`content-${tab}`).classList.remove('hidden');
+            // Update tab styles
+            document.querySelectorAll('[id^="tab-"]').forEach(el => {
+                el.classList.remove('tab-active', 'text-gray-900');
+                el.classList.add('text-gray-500');
+            });
+            document.getElementById(`tab-${tab}`).classList.add('tab-active', 'text-gray-900');
+            document.getElementById(`tab-${tab}`).classList.remove('text-gray-500');
+        }
+
+        // Test connection
+        async function testConnection() {
+            const url = document.getElementById('gatewayUrl').value;
+            const statusEl = document.getElementById('connectionStatus');
+            
+            statusEl.innerHTML = '<span class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span> Testing...';
+            
+            try {
+                const response = await fetch(`${url}/api/gateway/status`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                });
+                
+                if (response.ok) {
+                    statusEl.innerHTML = '<span class="w-2 h-2 bg-green-500 rounded-full"></span> Connected';
+                } else {
+                    statusEl.innerHTML = '<span class="w-2 h-2 bg-red-500 rounded-full"></span> Error';
+                }
+            } catch (err) {
+                statusEl.innerHTML = '<span class="w-2 h-2 bg-red-500 rounded-full"></span> Offline';
+            }
+        }
+
+        // API calls
+        async function callApi(tool, action, params = {}) {
+            const url = document.getElementById('gatewayUrl').value;
+            const token = document.getElementById('gatewayToken').value;
+            const responseBox = document.getElementById('responseBox');
+            
+            responseBox.textContent = '// Sending request...';
+            
+            const body = {
+                tool,
+                action,
+                ...params
+            };
+            
+            if (token) {
+                body.gatewayToken = token;
+            }
+            
+            try {
+                const response = await fetch(`${url}/api/${tool}/${action}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                
+                const data = await response.json();
+                responseBox.textContent = JSON.stringify(data, null, 2);
+            } catch (err) {
+                responseBox.textContent = `// Error: ${err.message}`;
+            }
+        }
+
+        // Response utilities
+        function clearResponse() {
+            document.getElementById('responseBox').textContent = '// Response will appear here...';
+        }
+
+        function copyResponse() {
+            const text = document.getElementById('responseBox').textContent;
+            navigator.clipboard.writeText(text);
+        }
+
+        // Auto-test on load
+        window.onload = testConnection;
+    </script>
+</body>
+</html>

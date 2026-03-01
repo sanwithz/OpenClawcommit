@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/sanwithz/Form/sanwithzstyle2.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@2.1.7/dist/loadingoverlay.min.js"></script>
+    <link href="https://unpkg.com/filepond/dist/filepond.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/filepond/dist/filepond.min.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.js"></script>
+    <script src="https://unpkg.com/jquery-filepond/filepond.jquery.js"></script>
+    <link href="https://unpkg.com/tabulator-tables/dist/css/tabulator_bootstrap5.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/tabulator-tables/dist/js/tabulator.min.js"></script>
+</head>
+<body>
+
+      <div class="text-center">
+      <img src="https://lh3.googleusercontent.com/d/1ZMI9FTcErAj1N8vh0viy3rAPnxZ7Zsky" alt="Logo" style="width:200px; height:auto;">
+      <h2>Multiple File Upload + Tabulator</h2>
+      <h5 class="text-center text-danger">สื่อ และนวัตกรรมครูสิทธิชาติ สิทธิ</h5>
+    </div>
+
+    <div class="container mt-5">
+        <div class="list p-4">
+            <div class="mb-3">
+                <input type="file" class="filepond my-pond" name="filepond" multiple>
+            </div>
+            <div class="text-center">
+                <button id="uploadBtn" class="btn btn-primary btn-lg">
+                    <i class="fa-solid fa-upload"></i> Upload Files
+                </button>
+            </div>
+        </div>
+
+        <h2 class="text-center mt-5">รายการไฟล์ที่เคยอัพโหลด</h2>
+        <div class="list" id="table-container"></div>
+    </div>
+
+    <script>
+        $(function(){
+            $.fn.filepond.registerPlugin(FilePondPluginImagePreview);
+            $('.my-pond').filepond({
+                allowMultiple: true,
+                instantUpload: false
+            });
+
+            $('#uploadBtn').click(function() {
+                $.LoadingOverlay("show", {image: "", text: "Uploading..."});
+                
+                var files = $('.my-pond').filepond('getFiles');
+                files.forEach(function(file) {
+                    var reader = new FileReader();
+                    reader.onloadend = function() {
+                        var base64String = reader.result.split(',')[1];
+                        var fileName = file.file.name;
+
+                        google.script.run.withSuccessHandler(function(response) {
+                            $.LoadingOverlay("hide");
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Upload Complete',
+                                text: response.message,
+                                confirmButtonText: 'OK'
+                            }).then(() => {
+                                $('.my-pond').filepond('removeFiles');
+                                loadTable();
+                            });
+                        }).uploadFileToDrive(fileName, base64String);
+                    };
+                    reader.readAsDataURL(file.file);
+                });
+            });
+
+            function loadTable() {
+                google.script.run.withSuccessHandler(function(data) {
+                    var table = new Tabulator("#table-container", {
+                        data: data,
+                        layout: "fitColumns",
+                        pagination:"local",
+                        paginationSize:15,
+                        paginationCounter:"rows",
+                        columns: [
+                            {title: "UID", field: "UID", sorter: "string", visible: false},
+                            {title: "File Name", field: "NAME", sorter: "string", vertAlign:"middle"},
+                            {title: "File URL", field: "URL", sorter: "string", vertAlign:"middle", formatter: function(cell){
+                                var url = cell.getValue();
+                                return `<a href="${url}" target="_blank">Open File</a>`;
+                            }},
+                            {title: "Image", field: "URL", vertAlign:"middle", hozAlign:"center", formatter: function(cell) {
+                                var imgSrc = cell.getValue();
+                                return `<img src="${imgSrc}" alt="Image" style="width:60px;height:auto;">`;
+                            }, width: 150,
+                            cellClick:function(e, cell){
+                                const pic = cell.getValue();
+                                Swal.fire({
+                                    imageUrl: ''+pic,
+                                    imageWidth: 500,
+                                    imageHeight: 400,
+                                    imageAlt: 'Custom image',
+                                })
+                            }},
+                            {title: "QR", field: "QR_URL", vertAlign:"middle", hozAlign:"center", formatter: function(cell){
+                                var qr = cell.getValue();
+                                return qr ? `<img src="${qr}" alt="QR" style="width:70px;height:70px;">` : '-';
+                            }, width: 110,
+                            cellClick:function(e, cell){
+                                var qr = cell.getValue();
+                                if (!qr) return;
+                                Swal.fire({
+                                    imageUrl: qr,
+                                    imageWidth: 260,
+                                    imageHeight: 260,
+                                    imageAlt: 'QR Code',
+                                });
+                            }},
+
+                        {title: "Actions", vertAlign:"middle", hozAlign:"center", formatter: function(cell, formatterParams) {
+                            var row = cell.getRow();
+                            var uid = row.getData().UID;
+                            return `<button class="btn btn-danger delete-btn" data-uid="${uid}"><i class="fa-solid fa-trash"></i></button>`;
+                        }, width: 120,
+                        cellClick: function(e, cell) {
+                            promptPassword(cell);
+                        }}
+                    ]
+                });
+
+                function promptPassword(cell) {
+                    (async () => {
+                        const { value: password } = await Swal.fire({
+                            position: 'center',
+                            title: 'กรอกรหัสผ่าน',
+                            input: 'password',
+                            inputPlaceholder: 'กรุณากรอกรหัสผ่าน',
+                            allowOutsideClick: false,
+                            confirmButtonColor: '#0d6efd',
+                            confirmButtonText: 'ตกลง',
+                            inputAttributes: {
+                                maxlength: 10,
+                                autocapitalize: 'off',
+                                autocorrect: 'off'
+                            }
+                        });
+
+                        if (password === "1234") { // Update the password here
+                            confirmDeletion(cell);
+                        } else {
+                            Swal.fire({
+                                position: 'center',
+                                icon: 'error',
+                                title: 'รหัสไม่ถูกต้อง',
+                                text: 'กรุณาติดต่อเจ้าหน้าที่',
+                                showConfirmButton: false,
+                                timer: 2000,
+                            });
+                        }
+                    })();
+                }
+
+                function confirmDeletion(cell) {
+                    Swal.fire({
+                        position: 'center',
+                        title: 'คุณต้องการที่จะลบข้อมูล',
+                        text: "คุณจะไม่สามารถกู้คืนข้อมูลได้",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'ต้องการ',
+                        cancelButtonText: 'ยกเลิก',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            Swal.fire({
+                                position: 'center',
+                                icon: 'success',
+                                title: 'ลบข้อมูลเรียบร้อย',
+                                showConfirmButton: false,
+                                timer: 2000,
+                            });
+                            google.script.run.withSuccessHandler(function(response) {
+                                loadTable();
+                            }).deleteFile(cell.getRow().getData().UID);
+                        }
+                    });
+                }
+            }).getDataFromSheet();
+        }
+
+            loadTable();
+        });
+    </script>
+
+<footer>
+© <script>document.write(new Date().getFullYear());</script> Copyright | พัฒนาโดยครูสิทธิชาติ สิทธิ
+<a href="https://www.facebook.com/SanwithzWebapp" target="_blank"><i class="fa-brands fa-facebook"></i></a>
+<a href="https://www.youtube.com/@Sanwithz" target="_blank"><i class="fa-brands fa-youtube"></i></a>
+</footer>
+
+
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Simulator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- Left Panel: Trading Chart -->
+        <main class="chart-panel">
+            <header class="chart-header">
+                <div class="header-title">
+                    <span class="logo-icon">M</span>
+                    <h1>TRADING SIMULATOR <span class="badge">SIMULATED</span></h1>
+                </div>
+                <div class="header-stats">
+                    <div class="stat-item">
+                        <span class="label">PRICE SOURCE</span>
+                        <span class="value">BINANCE (LIVE)</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="label">INDICATOR</span>
+                        <span class="value" id="indicator-status">Indicator engine: booting…</span>
+                    </div>
+                </div>
+                <button id="btn-screenshot" class="screenshot-btn" title="Capture Chart & Send to Telegram" type="button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 28 28" fill="currentColor">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M11.118 6a.5.5 0 0 0-.447.276L9.809 8H5.5A1.5 1.5 0 0 0 4 9.5v10A1.5 1.5 0 0 0 5.5 21h16a1.5 1.5 0 0 0 1.5-1.5v-10A1.5 1.5 0 0 0 21.5 8h-4.309l-.862-1.724A.5.5 0 0 0 15.882 6h-4.764zm-1.342-.17A1.5 1.5 0 0 1 11.118 5h4.764a1.5 1.5 0 0 1 1.342.83L17.809 7H21.5A2.5 2.5 0 0 1 24 9.5v10a2.5 2.5 0 0 1-2.5 2.5h-16A2.5 2.5 0 0 1 3 19.5v-10A2.5 2.5 0 0 1 5.5 7h3.691l.585-1.17z"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M13.5 18a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zm0 1a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9z"/>
+                    </svg>
+                </button>
+            </header>
+            
+            <div class="chart-container">
+                <div id="custom-chart" style="height:100%; width:100%"></div>
+            </div>
+        </main>
+
+        <!-- Right Panel: Controls & Logger -->
+        <aside class="sidebar-panel">
+            <div class="sidebar-tabs" role="tablist" aria-label="Sidebar panels">
+                <button id="sidebar-tab-trade" class="sidebar-tab active" type="button">TRADE PANEL</button>
+                <button id="sidebar-tab-logger" class="sidebar-tab" type="button">LOGGER</button>
+            </div>
+
+            <div id="sidebar-panel-trade" class="sidebar-content active">
+                <!-- Portfolio Overview -->
+                <section class="panel-section portfolio-card">
+                    <div class="section-header">
+                        <h2>PORTFOLIO & STATS</h2>
+                    </div>
+                    
+                    <div class="balance-display">
+                        <span class="balance-label">ACCOUNT BALANCE (USD)</span>
+                        <h3 class="balance-amount" id="account-balance">$10,000.00</h3>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <span class="stat-label">WIN RATE</span>
+                            <span class="stat-value" id="win-rate">0% <small>0 / 0</small></span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-label">MAX DRAWDOWN</span>
+                            <span class="stat-value" id="max-drawdown">0.00%</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-label">BEST TRADE</span>
+                            <span class="stat-value success" id="best-trade">+$0.00</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-label">WORST TRADE</span>
+                            <span class="stat-value error" id="worst-trade">-$0.00</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Active Position -->
+                <section class="panel-section position-card">
+                    <div class="tabs">
+                        <button class="tab active">TRADE <span class="badge sim">SIM</span></button>
+                        <button class="tab disabled">AUTO (LOCKED)</button>
+                    </div>
+
+                    <div class="position-info">
+                        <div class="current-price-display">
+                            <span class="label">LIVE BTC/USDT</span>
+                            <span class="price" id="live-price">Loading...</span>
+                        </div>
+                        
+                        <div class="trade-controls">
+                            <div class="input-group">
+                                <label>Lot Size / Amount ($)</label>
+                                <input type="number" id="trade-amount" value="1000" min="10" step="10">
+                            </div>
+                            
+                            <div class="button-group">
+                                <button class="btn btn-buy" id="btn-buy">
+                                    <span class="title">LONG (BUY)</span>
+                                    <span class="desc">Bet on price increase</span>
+                                </button>
+                                <button class="btn btn-sell" id="btn-sell">
+                                    <span class="title">SHORT (SELL)</span>
+                                    <span class="desc">Bet on price decrease</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Open Position Tracker (Hidden initially) -->
+                        <div class="open-position-tracker hidden" id="open-position-panel">
+                            <div class="tracker-header">
+                                <h4>OPEN POSITION <span class="badge position-type" id="open-type-badge">LONG</span></h4>
+                                <span class="open-time" id="open-time">00:00:00</span>
+                            </div>
+                            <div class="tracker-details">
+                                <div class="detail">
+                                    <span>Entry Price</span>
+                                    <strong id="open-entry-price">$0.00</strong>
+                                </div>
+                                <div class="detail">
+                                    <span>Size</span>
+                                    <strong id="open-size">$0.00</strong>
+                                </div>
+                            </div>
+                            <div class="pnl-display">
+                                <span>UNREALIZED P&L</span>
+                                <strong class="pnl-value" id="open-pnl">$0.00 <small>(0.00%)</small></strong>
+                            </div>
+                            <button class="btn btn-close" id="btn-close-position">CLOSE POSITION</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Indicator Alerts -->
+                <section class="panel-section">
+                    <div class="section-header space-between">
+                        <div>
+                            <h2>INDICATOR ALERTS</h2>
+                            <span class="subtitle">Master Candle + EMA logic</span>
+                        </div>
+                    </div>
+                    <div class="history-list-container" style="max-height: 180px;">
+                        <ul class="history-list" id="indicator-alert-list">
+                            <li class="empty-state">No indicator alerts yet.</li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+
+            <div id="sidebar-panel-logger" class="sidebar-content">
+                <!-- Trade History Logger -->
+                <section class="panel-section history-card">
+                    <div class="section-header space-between">
+                        <div>
+                            <h2>TRADE LOGGER</h2>
+                            <span class="subtitle">History</span>
+                        </div>
+                        <span class="trade-count" id="total-trades">0 entries</span>
+                    </div>
+                    
+                    <div class="history-list-container">
+                        <ul class="history-list" id="trade-history-list">
+                            <!-- History items will be injected here via JS -->
+                            <li class="empty-state">No trades executed yet.</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <button class="btn btn-outline" id="btn-reset">RESET SIMULATOR</button>
+                    </div>
+                </section>
+            </div>
+        </aside>
+    </div>
+
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

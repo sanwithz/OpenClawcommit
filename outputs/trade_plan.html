@@ -1,0 +1,14 @@
+<!doctype html><html><head><meta charset='utf-8'><title>Trade Plan</title><style>body{font-family:Arial;margin:0;background:#fff}#c{width:1200px;height:700;border:1px solid #ddd} .wrap{padding:16px}</style></head><body><div class='wrap'><h2>BTCUSDT 30m Trade Plan</h2><canvas id='c' width='1200' height='700'></canvas><p>Entry 66,080-66,220 | SL 65,760 | TP1 66,600 TP2 66,950 TP3 67,420</p></div><script>
+(async()=>{const r=await fetch('https://api.binance.com/api/v3/klines?symbol=BTCUSDT&interval=30m&limit=120');const k=await r.json();const closes=k.map(x=>+x[4]);const highs=k.map(x=>+x[2]);const lows=k.map(x=>+x[3]);const c=document.getElementById('c');const g=c.getContext('2d');const pad=60;const W=c.width,H=c.height;const min=Math.min(...lows,65760)-80,max=Math.max(...highs,67420)+80;const x=i=>pad+i*(W-2*pad)/(closes.length-1);const y=v=>H-pad-(v-min)*(H-2*pad)/(max-min);
+function hline(v,color,label){g.strokeStyle=color;g.setLineDash([8,6]);g.beginPath();g.moveTo(pad,y(v));g.lineTo(W-pad,y(v));g.stroke();g.setLineDash([]);g.fillStyle=color;g.fillText(label,pad+6,y(v)-6)}
+// grid
+g.strokeStyle='#eee';for(let i=0;i<6;i++){let yy=pad+i*(H-2*pad)/5;g.beginPath();g.moveTo(pad,yy);g.lineTo(W-pad,yy);g.stroke();}
+// price
+g.strokeStyle='#111';g.lineWidth=2;g.beginPath();closes.forEach((v,i)=>{if(i===0)g.moveTo(x(i),y(v));else g.lineTo(x(i),y(v));});g.stroke();
+// entry zone
+g.fillStyle='rgba(245,158,11,0.15)';g.fillRect(pad,y(66220),W-2*pad,y(66080)-y(66220));
+hline(65760,'#dc2626','SL 65,760');hline(66600,'#16a34a','TP1 66,600');hline(66950,'#22c55e','TP2 66,950');hline(67420,'#4ade80','TP3 67,420');
+// title text
+g.fillStyle='#000';g.font='14px Arial';g.fillText('Entry Zone 66,080 - 66,220',pad+6,y(66220)-10);g.fillText('Last: '+closes.at(-1).toFixed(2),W-180,pad);
+})();
+</script></body></html>

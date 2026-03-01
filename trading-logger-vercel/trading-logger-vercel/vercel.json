@@ -1,0 +1,7 @@
+{
+  "version": 2,
+  "name": "trading-logger-2026",
+  "routes": [
+    { "src": "/", "dest": "/index.html" }
+  ]
+}

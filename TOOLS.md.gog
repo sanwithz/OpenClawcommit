@@ -1,0 +1,101 @@
+# gog SKILL.md
+
+Google Workspace CLI for Gmail, Calendar, Drive, Contacts, Sheets, Docs.
+
+## Install
+
+```bash
+brew install steipete/tap/gogcli
+```
+
+## Setup (One-time OAuth)
+
+```bash
+# Set credentials file from Google Cloud Console
+gog auth credentials /path/to/client_secret.json
+
+# Add account with services
+gog auth add opensanwithz@gmail.com --services gmail,calendar,drive,contacts,sheets,docs
+
+# List authenticated accounts
+gog auth list
+```
+
+**Tip:** Set `GOG_ACCOUNT=opensanwithz@gmail.com` to avoid repeating `--account`.
+
+## Gmail
+
+```bash
+# Search emails
+gog gmail search 'newer_than:7d' --max 10
+
+# Send email
+gog gmail send --to a@b.com --subject "Hi" --body "Hello"
+```
+
+## Calendar
+
+```bash
+# List events
+gog calendar events <calendarId> --from <iso> --to <iso>
+```
+
+## Drive
+
+```bash
+# Search files
+gog drive search "query" --max 10
+```
+
+## Contacts
+
+```bash
+# List contacts
+gog contacts list --max 20
+```
+
+## Sheets
+
+```bash
+# Get range as JSON
+gog sheets get <sheetId> "Tab!A1:D10" --json
+
+# Update cells
+gog sheets update <sheetId> "Tab!A1:B2" \
+  --values-json '[["A","B"],["1","2"]]' \
+  --input USER_ENTERED
+
+# Append rows
+gog sheets append <sheetId> "Tab!A:C" \
+  --values-json '[["x","y","z"]]' \
+  --insert INSERT_ROWS
+
+# Clear range
+gog sheets clear <sheetId> "Tab!A2:Z"
+
+# Get metadata
+gog sheets metadata <sheetId> --json
+```
+
+## Docs
+
+```bash
+# Export to file
+gog docs export <docId> --format txt --out /tmp/doc.txt
+
+# Output to stdout
+gog docs cat <docId>
+```
+
+## Scripting Tips
+
+- Use `--json` for machine-readable output
+- Use `--no-input` for non-interactive scripts
+- Prefer `--values-json` over inline rows for Sheets
+
+## Safety
+
+Confirm before:
+- Sending emails
+- Creating calendar events
+- Modifying shared documents

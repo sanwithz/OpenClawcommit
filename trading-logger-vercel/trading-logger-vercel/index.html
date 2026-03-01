@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2026 Trading Logger</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body { background: #fff; color: #333; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+    .serif-title { font-family: 'Playfair Display', serif; font-weight: 400; }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    .dot { aspect-ratio: 1/1; border-radius: 2px; transition: all .2s ease; }
+    .dot:hover { transform: scale(1.4); z-index: 10; outline: 1px solid #000; }
+    .dot-grey { background: #e5e7eb; }
+    .dot-green { background: #22c55e; }
+    .dot-red { background: #ef4444; }
+    .dot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(16px, 1fr)); gap: 4px; width: 100%; }
+    @media (max-width: 640px) { .dot-grid { grid-template-columns: repeat(auto-fill, minmax(12px, 1fr)); gap: 3px; } }
+    .loading { opacity: 0.6; pointer-events: none; }
+  </style>
+</head>
+<body class="p-6 md:p-12">
+  <div class="max-w-5xl mx-auto space-y-8">
+    <header class="text-center">
+      <h1 class="serif-title text-3xl md:text-5xl mb-3 text-[#1a1a1a]">2026 Trading Logger</h1>
+      <p class="mono text-xs md:text-sm text-[#999] uppercase tracking-wider">Log every trade • Visualize yearly consistency • Cloud synced</p>
+      <div id="apiStatus" class="mt-2 text-xs"></div>
+    </header>
+
+    <section class="grid md:grid-cols-4 gap-3">
+      <div class="border rounded-xl p-3">
+        <div class="text-xs text-slate-500">Total Trades</div>
+        <div id="kpiTrades" class="text-2xl font-semibold">0</div>
+      </div>
+      <div class="border rounded-xl p-3">
+        <div class="text-xs text-slate-500">Win Rate</div>
+        <div id="kpiWinrate" class="text-2xl font-semibold">0%</div>
+      </div>
+      <div class="border rounded-xl p-3">
+        <div class="text-xs text-slate-500">Total PnL</div>
+        <div id="kpiPnl" class="text-2xl font-semibold mono">0.00</div>
+      </div>
+      <div class="border rounded-xl p-3">
+        <div class="text-xs text-slate-500">Avg PnL / Trade</div>
+        <div id="kpiAvg" class="text-2xl font-semibold mono">0.00</div>
+      </div>
+    </section>
+
+    <section class="border rounded-2xl p-4 md:p-5 space-y-4">
+      <h2 class="font-semibold">Add Trade</h2>
+      <div class="grid md:grid-cols-7 gap-2">
+        <input id="dt" type="datetime-local" class="px-3 py-2 border rounded-lg" />
+        <input id="symbol" placeholder="BTCUSDT" class="px-3 py-2 border rounded-lg" value="BTCUSDT" />
+        <select id="side" class="px-3 py-2 border rounded-lg">
+          <option>LONG</option>
+          <option selected>SHORT</option>
+        </select>
+        <input id="entry" type="number" step="0.01" placeholder="Entry" class="px-3 py-2 border rounded-lg" />
+        <input id="exit" type="number" step="0.01" placeholder="Exit" class="px-3 py-2 border rounded-lg" />
+        <input id="pnl" type="number" step="0.01" placeholder="PnL USDT" class="px-3 py-2 border rounded-lg" />
+        <button id="addBtn" class="px-4 py-2 rounded-lg bg-black text-white">Add</button>
+      </div>
+      <div class="grid md:grid-cols-[1fr_auto] gap-2">
+        <input id="note" placeholder="Note (optional)" class="px-3 py-2 border rounded-lg" />
+        <button id="refreshBtn" class="px-4 py-2 rounded-lg bg-slate-600 text-white">Refresh</button>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button id="exportJsonBtn" class="px-4 py-2 rounded-lg bg-slate-900 text-white text-sm">Export JSON</button>
+        <button id="exportCsvBtn" class="px-4 py-2 rounded-lg bg-slate-700 text-white text-sm">Export CSV</button>
+      </div>
+    </section>
+
+    <section class="w-full">
+      <div class="w-full text-center mb-6">
+        <h3 class="serif-title text-2xl">2026 Trading Year Progress</h3>
+        <p id="todayText" class="mono text-xs text-[#999] uppercase tracking-wider"></p>
+      </div>
+      <div id="gridContainer" class="dot-grid mb-8"></div>
+      <div class="w-full border-t pt-6">
+        <div class="flex flex-wrap justify-center gap-x-6 gap-y-4 md:gap-x-8 text-sm">
+          <div class="flex items-center gap-3">
+            <div class="w-5 h-5 dot-green rounded-sm flex-shrink-0"></div>
+            <div class="flex flex-wrap gap-x-2 items-baseline">
+              <span class="text-[#666] font-medium">Days Passed</span>
+              <span class="text-xs text-[#999]">•</span>
+              <span id="daysPassedText" class="font-bold text-[#1a1a1a]">--</span>
+              <span id="percentPassedText" class="text-[#999] text-xs">(--%)</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-5 h-5 dot-grey rounded-sm flex-shrink-0"></div>
+            <div class="flex flex-wrap gap-x-2 items-baseline">
+              <span class="text-[#666] font-medium">Days Remaining</span>
+              <span class="text-xs text-[#999]">•</span>
+              <span id="daysRemainingText" class="font-bold text-[#1a1a1a]">--</span>
+              <span id="percentRemainingText" class="text-[#999] text-xs">(--%)</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-5 h-5 dot-green rounded-sm flex-shrink-0"></div>
+            <div class="flex flex-wrap gap-x-2 items-baseline">
+              <span class="text-[#666] font-medium">Profit Day</span><span class="text-xs text-[#999]">•</span>
+              <span id="profitDaysText" class="font-bold text-[#1a1a1a]">0</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-5 h-5 dot-red rounded-sm flex-shrink-0"></div>
+            <div class="flex flex-wrap gap-x-2 items-baseline">
+              <span class="text-[#666] font-medium">Loss Day</span><span class="text-xs text-[#999]">•</span>
+              <span id="lossDaysText" class="font-bold text-[#1a1a1a]">0</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="w-5 h-5 dot-grey rounded-sm flex-shrink-0"></div>
+            <div class="flex flex-wrap gap-x-2 items-baseline">
+              <span class="text-[#666] font-medium">No Trade Day</span><span class="text-xs text-[#999]">•</span>
+              <span id="noTradeDaysText" class="font-bold text-[#1a1a1a]">365</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="border rounded-2xl p-4 md:p-5">
+      <h3 class="font-semibold mb-3">Trade History</h3>
+      <div class="overflow-auto">
+        <table class="min-w-full text-sm">
+          <thead>
+            <tr class="text-left border-b">
+              <th class="py-2 pr-3">Datetime</th>
+              <th class="py-2 pr-3">Symbol</th>
+              <th class="py-2 pr-3">Side</th>
+              <th class="py-2 pr-3">Entry</th>
+              <th class="py-2 pr-3">Exit</th>
+              <th class="py-2 pr-3">PnL</th>
+              <th class="py-2 pr-3">Note</th>
+              <th class="py-2">Action</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <div class="mt-4 flex items-center justify-between gap-3 flex-wrap">
+        <p id="pageInfo" class="text-xs text-slate-500 mono">Page 1 / 1 • 0 rows</p>
+        <div class="flex items-center gap-2">
+          <button id="prevPageBtn" class="px-3 py-1.5 border rounded-lg text-sm disabled:opacity-50">Prev</button>
+          <button id="nextPageBtn" class="px-3 py-1.5 border rounded-lg text-sm disabled:opacity-50">Next</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // CONFIG: Trading Logger API
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyen96weCbpla2TC9K75zCnAuZ_WBlTkQItrj86H8VQS6d1HVLIcuk6_ucbMHJVZClM/exec';
+    
+    const PAGE_SIZE = 24;
+    let currentPage = 1;
+    let trades = [];
+
+    async function api(action, data = {}) {
+      const url = action === 'list' || action === 'stats' 
+        ? `${API_URL}?action=${action}` 
+        : API_URL;
+      
+      const options = action === 'list' || action === 'stats'
+        ? { method: 'GET' }
+        : { 
+            method: 'POST', 
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action, ...data })
+          };
+      
+      try {
+        const res = await fetch(url, options);
+        return await res.json();
+      } catch (err) {
+        console.error('API Error:', err);
+        return { ok: false, error: String(err) };
+      }
+    }
+
+    async function loadTrades() {
+      if (API_URL.includes('YOUR_APPS_SCRIPT')) {
+        document.getElementById('apiStatus').innerHTML = '<span class="text-orange-600">⚠️ Set your API URL in localStorage: localStorage.setItem(\'tradingApiUrl\', \'YOUR_URL\')</span>';
+        return;
+      }
+      
+      document.body.classList.add('loading');
+      const result = await api('list');
+      document.body.classList.remove('loading');
+      
+      if (result.ok) {
+        trades = result.trades || [];
+        document.getElementById('apiStatus').innerHTML = '<span class="text-green-600">✓ Connected to cloud</span>';
+        render();
+      } else {
+        document.getElementById('apiStatus').innerHTML = `<span class="text-red-600">✗ Error: ${result.error}</span>`;
+      }
+    }
+
+    async function addTrade(t) {
+      const result = await api('add', { trade: t });
+      if (result.ok) {
+        await loadTrades();
+        return true;
+      }
+      alert('Failed to add trade: ' + result.error);
+      return false;
+    }
+
+    async function deleteTrade(id) {
+      const result = await api('delete', { id });
+      if (result.ok) {
+        await loadTrades();
+        return true;
+      }
+      alert('Failed to delete trade: ' + result.error);
+      return false;
+    }
+
+    function calc() {
+      const total = trades.length;
+      const wins = trades.filter(t => t.pnl > 0).length;
+      const totalPnl = trades.reduce((a, b) => a + Number(b.pnl || 0), 0);
+      const avg = total ? (totalPnl / total) : 0;
+      return { total, wins, totalPnl, avg, winrate: total ? (wins / total * 100) : 0 };
+    }
+
+    function ymd(dateStr) {
+      if (!dateStr) return null;
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return null;
+      return d.toISOString().slice(0, 10);
+    }
+
+    function renderGrid() {
+      const container = document.getElementById('gridContainer');
+      container.innerHTML = '';
+      const year = 2026;
+      const start = new Date(`${year}-01-01T00:00:00`);
+      const totalDots = 365;
+
+      const now = new Date();
+      const startOfYear = new Date(`${year}-01-01T00:00:00`);
+      const rawPassed = Math.floor((now - startOfYear) / 86400000) + 1;
+      const daysPassed = Math.max(0, Math.min(totalDots, rawPassed));
+      const daysRemaining = totalDots - daysPassed;
+      document.getElementById('daysPassedText').textContent = daysPassed;
+      document.getElementById('daysRemainingText').textContent = daysRemaining;
+      document.getElementById('percentPassedText').textContent = `(${((daysPassed / totalDots) * 100).toFixed(1)}%)`;
+      document.getElementById('percentRemainingText').textContent = `(${((daysRemaining / totalDots) * 100).toFixed(1)}%)`;
+
+      const dayPnl = {};
+      for (const t of trades) {
+        const k = ymd(t.dt);
+        if (k) dayPnl[k] = (dayPnl[k] || 0) + Number(t.pnl || 0);
+      }
+
+      let profitDays = 0, lossDays = 0, noTradeDays = 0;
+      for (let i = 0; i < totalDots; i++) {
+        const d = new Date(start); d.setDate(start.getDate() + i);
+        const key = d.toISOString().slice(0, 10);
+        const pnl = dayPnl[key];
+
+        const dot = document.createElement('div');
+        dot.className = 'dot';
+        if (pnl > 0) { dot.classList.add('dot-green'); profitDays++; }
+        else if (pnl < 0) { dot.classList.add('dot-red'); lossDays++; }
+        else { dot.classList.add('dot-grey'); noTradeDays++; }
+
+        dot.title = `${key} • ${pnl ? `PnL ${pnl.toFixed(2)} USDT` : 'No trade'}`;
+        container.appendChild(dot);
+      }
+
+      document.getElementById('profitDaysText').textContent = profitDays;
+      document.getElementById('lossDaysText').textContent = lossDays;
+      document.getElementById('noTradeDaysText').textContent = noTradeDays;
+    }
+
+    function renderRows() {
+      const tbody = document.getElementById('rows');
+      tbody.innerHTML = '';
+
+      const totalRows = trades.length;
+      const totalPages = Math.max(1, Math.ceil(totalRows / PAGE_SIZE));
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
+
+      const start = (currentPage - 1) * PAGE_SIZE;
+      const pageItems = trades.slice(start, start + PAGE_SIZE);
+
+      for (const t of pageItems) {
+        const tr = document.createElement('tr');
+        tr.className = 'border-b';
+        const pnlCls = t.pnl >= 0 ? 'text-emerald-600' : 'text-red-600';
+        tr.innerHTML = `
+          <td class="py-2 pr-3 mono">${(t.dt || '').replace('T', ' ')}</td>
+          <td class="py-2 pr-3">${t.symbol}</td>
+          <td class="py-2 pr-3">${t.side}</td>
+          <td class="py-2 pr-3 mono">${Number(t.entry || 0).toLocaleString()}</td>
+          <td class="py-2 pr-3 mono">${Number(t.exit || 0).toLocaleString()}</td>
+          <td class="py-2 pr-3 mono ${pnlCls}">${Number(t.pnl || 0).toFixed(2)}</td>
+          <td class="py-2 pr-3">${t.note || ''}</td>
+          <td class="py-2"><button class="text-red-600" data-id="${t.id}">Delete</button></td>
+        `;
+        tr.querySelector('button').onclick = () => {
+          if (confirm('Delete this trade?')) deleteTrade(t.id);
+        };
+        tbody.appendChild(tr);
+      }
+
+      document.getElementById('pageInfo').textContent = `Page ${currentPage} / ${totalPages} • ${totalRows} rows`;
+      document.getElementById('prevPageBtn').disabled = currentPage <= 1;
+      document.getElementById('nextPageBtn').disabled = currentPage >= totalPages;
+    }
+
+    function render() {
+      const c = calc();
+      document.getElementById('kpiTrades').textContent = c.total;
+      document.getElementById('kpiWinrate').textContent = `${c.winrate.toFixed(1)}%`;
+      document.getElementById('kpiPnl').textContent = c.totalPnl.toFixed(2);
+      document.getElementById('kpiPnl').className = `text-2xl font-semibold mono ${c.totalPnl >= 0 ? 'text-emerald-600' : 'text-red-600'}`;
+      document.getElementById('kpiAvg').textContent = c.avg.toFixed(2);
+
+      const now = new Date();
+      document.getElementById('todayText').textContent = `365 Day View • Current Date: ${now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+
+      renderGrid();
+      renderRows();
+    }
+
+    document.getElementById('addBtn').onclick = async () => {
+      const dt = document.getElementById('dt').value;
+      if (!dt) return alert('Please choose datetime');
+      await addTrade({
+        dt,
+        symbol: document.getElementById('symbol').value.trim(),
+        side: document.getElementById('side').value,
+        entry: document.getElementById('entry').value,
+        exit: document.getElementById('exit').value,
+        pnl: document.getElementById('pnl').value,
+        note: document.getElementById('note').value.trim()
+      });
+      currentPage = 1;
+      document.getElementById('note').value = '';
+    };
+
+    document.getElementById('refreshBtn').onclick = () => loadTrades();
+
+    document.getElementById('exportJsonBtn').onclick = () => {
+      const blob = new Blob([JSON.stringify({ trades }, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'trading-log.json';
+      a.click();
+    };
+
+    document.getElementById('exportCsvBtn').onclick = () => {
+      const head = 'datetime,symbol,side,entry,exit,pnl_usdt,note';
+      const rows = trades.map(t => [t.dt, t.symbol, t.side, t.entry, t.exit, t.pnl, `"${String(t.note || '').replaceAll('"', '""')}"`].join(','));
+      const blob = new Blob([[head, ...rows].join('\n')], { type: 'text/csv' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'trading-log.csv';
+      a.click();
+    };
+
+    document.getElementById('prevPageBtn').onclick = () => {
+      currentPage = Math.max(1, currentPage - 1);
+      renderRows();
+    };
+
+    document.getElementById('nextPageBtn').onclick = () => {
+      const totalPages = Math.max(1, Math.ceil(trades.length / PAGE_SIZE));
+      currentPage = Math.min(totalPages, currentPage + 1);
+      renderRows();
+    };
+
+    // default datetime now
+    const now = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    document.getElementById('dt').value = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+    // Load on start
+    loadTrades();
+  </script>
+</body>
+</html>

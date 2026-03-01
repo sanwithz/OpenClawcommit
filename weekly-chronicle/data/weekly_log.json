@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "description": "Weekly Chronicle Database - Store weekly events for newspaper generation",
+  "newspaper_title": "The Weekly Chronicle",
+  "newspaper_subtitle": "Your Personal Weekly Digest",
+  "base_volume": "XCVII",
+  "weeks": [
+    {
+      "week_id": "2025-W19",
+      "date_start": "2025-05-05",
+      "date_end": "2025-05-11",
+      "title": "A WEEK OF PROGRESS AND PROMISE",
+      "status": "published",
+      "pdf_path": "output/2025-W19.pdf"
+    },
+    {
+      "week_id": "2025-W20",
+      "date_start": "2025-05-12",
+      "date_end": "2025-05-18",
+      "title": "BREAKTHROUGH WEEK: NEW SYSTEMS IN PLACE",
+      "status": "published",
+      "pdf_path": "output/2025-W20.pdf"
+    }
+  ],
+  "templates": {
+    "default": "data/TEMPLATE.json"
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "schema_version": "1.0",
+  "week_id": "YYYY-WXX",
+  "date_range": {
+    "start": "2025-05-12",
+    "end": "2025-05-18"
+  },
+  "masthead": {
+    "title": "The Weekly Chronicle",
+    "subtitle": "Your Personal Weekly Digest",
+    "volume": "XCVII",
+    "number": "XX"
+  },
+  "front_page": {
+    "headline": "YOUR WEEK HEADLINE HERE",
+    "byline": "By Personal Chronicle Staff | Special Edition",
+    "lead_story": "Write a compelling summary of your week here. What were the major themes? What made this week special?",
+    "key_points": [
+      "Major accomplishment or event",
+      "Another significant moment",
+      "Something you're proud of",
+      "A realization or insight"
+    ],
+    "pull_quote": "Insert an inspirational or meaningful quote from your week here.",
+    "weather": {
+      "temp_range": "24-32°C",
+      "condition": "Mostly sunny with scattered clouds"
+    },
+    "week_at_glance": [
+      "✓ Completed task 1",
+      "✓ Achieved goal 2",
+      "✓ Quality time spent on...",
+      "✓ New learning or skill",
+      "✓ Personal milestone"
+    ]
+  },
+  "sections": {
+    "home_personal": [
+      {
+        "date": "2025-05-12",
+        "headline": "Home Story Headline",
+        "content": "Describe what happened at home or with family this day. Be specific about events, conversations, or achievements.",
+        "highlight": "A key takeaway or memorable moment from this event."
+      },
+      {
+        "date": "2025-05-14",
+        "headline": "Another Home Story",
+        "content": "Continue with other significant home/family events of the week.",
+        "highlight": "What made this moment special?"
+      },
+      {
+        "date": "Throughout the Week",
+        "headline": "Personal Projects Update",
+        "content": "Write about ongoing personal projects, hobbies, or individual pursuits.",
+        "highlight": "Progress made and satisfaction gained."
+      }
+    ],
+    "health_wellness": [
+      {
+        "date": "Daily",
+        "headline": "Fitness Achievements",
+        "content": "Document your exercise routine, workouts completed, or physical activities. How many days did you exercise? What types of activities?",
+        "highlight": "Notable improvements in energy, strength, or endurance."
+      },
+      {
+        "date": "Meal Planning",
+        "headline": "Nutrition Wins",
+        "content": "Write about your eating habits this week. Home-cooked meals, healthy choices, or dietary achievements.",
+        "highlight": "How you felt as a result of good nutrition."
+      },
+      {
+        "date": "Mindfulness",
+        "headline": "Mental Wellness Focus",
+        "content": "Describe meditation, mindfulness practices, or mental health activities. Digital detox, journaling, or therapy sessions.",
+        "highlight": "The impact on your mental clarity and emotional state."
+      }
+    ],
+    "work_career": [
+      {
+        "date": "2025-05-15",
+        "headline": "Professional Milestone",
+        "content": "Document a significant work achievement, project completion, or career development moment.",
+        "highlight": "How this advances your professional goals."
+      },
+      {
+        "date": "Learning",
+        "headline": "Skills Development",
+        "content": "Write about courses taken, books read, or new skills acquired for professional growth.",
+        "highlight": "How these new skills will be applied."
+      },
+      {
+        "date": "Networking",
+        "headline": "Relationship Building",
+        "content": "Document meaningful professional connections, mentorship moments, or collaborative successes.",
+        "highlight": "The value gained from these relationships."
+      }
+    ],
+    "entertainment": [
+      {
+        "date": "Weekend",
+        "headline": "Weekend Activities",
+        "content": "Describe movies watched, restaurants visited, concerts attended, or cultural experiences.",
+        "highlight": "What you enjoyed most and why."
+      },
+      {
+        "date": "Reading",
+        "headline": "Literary Progress",
+        "content": "Document books read, articles consumed, or podcasts listened to.",
+        "highlight": "Key insights or enjoyment gained."
+      },
+      {
+        "date": "Creative",
+        "headline": "Creative Expression",
+        "content": "Write about artistic pursuits, creative projects, or hobbies enjoyed.",
+        "highlight": "How creativity enriched your week."
+      }
+    ],
+    "looking_ahead": {
+      "priorities": "What are your main focuses for next week? What do you want to accomplish?",
+      "goals": "What foundation are you building for the future? What long-term goals are you working toward?",
+      "checklist": [
+        "□ Task or goal 1",
+        "□ Task or goal 2",
+        "□ Task or goal 3",
+        "□ Task or goal 4",
+        "□ Task or goal 5"
+      ]
+    }
+  }
+}
