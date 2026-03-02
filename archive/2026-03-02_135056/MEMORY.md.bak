@@ -73,12 +73,6 @@ Anthropic's skill-creator framework for building/evaluating skills:
 - Key tool: `eval-viewer/generate_review.py` for HTML review viewer
 - Use when: Creating new skills, improving existing, optimizing descriptions
 
-## SkillForge Installed
-- Location: `skills/skillforge/`
-- Source: https://github.com/tripleyak/SkillForge
-- Purpose: intelligent skill routing + skill creation/improvement framework
-- Extra capability unlocked: triage input to recommend existing skills first, then improve or create new skills when needed
-
 ## Frontend CDNs (Standard Stack)
 When designing frontend, integrate these CDNs:
 ```html
