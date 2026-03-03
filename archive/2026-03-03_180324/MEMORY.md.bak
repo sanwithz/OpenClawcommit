@@ -27,13 +27,6 @@
 - Freeform as local visual database/table companion
 - Journal app is the Daily Report system
 
-## Google Workspace Automation Preference
-- Use unified skill: `skills/google-workspace-manager/SKILL.md`
-- Two operation modes:
-  - `READ-ONLY` for safe inspection/summaries (no writes)
-  - `ACTION` for create/update/send operations with step logs
-- Default account for operations: `opensanwithz@gmail.com`
-
 ## QuickChart QR Code Generator
 - **URL:** `https://quickchart.io/qr?text=URL&size=300`
 - **Params:** text, size, ecLevel (L/M/Q/H), dark, light colors
