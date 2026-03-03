@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      body { font-family: Arial, sans-serif; padding: 24px; }
+      h1 { margin-bottom: 12px; }
+      .row { margin: 8px 0; }
+      .label { font-weight: bold; display: inline-block; width: 100px; }
+      .box { border: 1px solid #ddd; border-radius: 8px; padding: 16px; }
+    </style>
+  </head>
+  <body>
+    <h1>Form Submission</h1>
+    <div class="box">
+      <div class="row"><span class="label">Name:</span> <?= name ?></div>
+      <div class="row"><span class="label">Phone:</span> <?= phone ?></div>
+      <div class="row"><span class="label">Email:</span> <?= email ?></div>
+      <div class="row"><span class="label">Generated:</span> <?= generatedAt ?></div>
+    </div>
+  </body>
+</html>
