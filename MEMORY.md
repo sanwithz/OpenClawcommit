@@ -123,3 +123,11 @@ When designing frontend, integrate these CDNs:
 1. **Primary (main chat):** `openai-codex/gpt-5.3-codex`
 2. **Fallback policy:** `moonshot/kimi-k2.5` (when quota < 15%)
 3. **On-demand:** Claude Code via command `run in claude code: ...`
+
+## Tiny Status Preference
+- When user types `/tinystatus`, reply in 4 separate lines exactly:
+  - `Used: X%`
+  - `Left: Y%`
+  - `5h Reset: <exact date time, GMT+7>`
+  - `Day Reset: <exact date time, GMT+7>`
+- Always provide exact reset date/time (no user math needed).
