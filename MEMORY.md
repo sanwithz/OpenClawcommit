@@ -21,6 +21,7 @@
 - "อยากรู้ราคาทองคำ" → Capture gold price screenshot
 - "/orchestra" → Show inline buttons ให้เลือกโหมด In-Memory หรือ File-Based แล้วทำ multi-agent workflow
 - Requests about Journal daily logs/diary → Use Journal app with separated fields: **Header/Title** + **Body** (Body starts with `Topic:` then `Body:` bullets)
+- "บันทึกสิ่งที่ทำวันนี้ลงไปใน Journal" → Create a new Journal daily report immediately using journal-daily-report format
 
 ## App Workflow Preference
 - Obsidian-first for knowledge capture
