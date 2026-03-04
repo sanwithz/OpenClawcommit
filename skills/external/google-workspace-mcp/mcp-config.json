@@ -1,0 +1,6 @@
+{
+  "google-workspace": {
+    "command": "/Users/harvey/.openclaw/workspace/skills/external/google-workspace-mcp/.venv/bin/g-workspace-mcp",
+    "args": ["run"]
+  }
+}
