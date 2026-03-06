@@ -22,6 +22,12 @@ Primary help areas requested:
 ## Trigger Phrases
 - **"Trade หาค่า API"** or **"Trade เพื่อหาค่า API"** → run full trading analysis workflow (TradingView screenshot → 30m plan A+B with SL/TP + update Trading Logger)
 - **"อยากรู้ราคาทองคำ"** → capture goldtraders.or.th header+table, merge with ffmpeg vstack, send ONE image only
+- **"Update journal"** → follow this sequence:
+  1) User says `ใช้จากงานวันนี้เลย`
+  2) Assistant drafts the Journal entry
+  3) User says `Add this to my Journal App`
+  4) User says `Use All English`
+  5) Assistant outputs/fills Journal content in English only
 
 ## Workflow Standards
 - **Flowcharts:** Always generate HTML/CSS → browser screenshot → Telegram image (never raw diagram code)

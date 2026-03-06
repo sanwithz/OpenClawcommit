@@ -22,6 +22,7 @@
 - "/orchestra" → Show inline buttons ให้เลือกโหมด In-Memory หรือ File-Based แล้วทำ multi-agent workflow
 - Requests about Journal daily logs/diary → Use Journal app with separated fields: **Header/Title** + **Body** (Body starts with `Topic:` then `Body:` bullets)
 - "บันทึกสิ่งที่ทำวันนี้ลงไปใน Journal" → Create a new Journal daily report immediately using journal-daily-report format
+- "Update journal" → Use workflow: `ใช้จากงานวันนี้เลย` → `Add this to my Journal App` → `Use All English`; final Journal content must be English-only.
 
 ## App Workflow Preference
 - Obsidian-first for knowledge capture
