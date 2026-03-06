@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Content Pipeline Manager</title>
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #121934;
+      --panel-2: #1a2448;
+      --text: #e8ecff;
+      --muted: #9aa5d1;
+      --accent: #7c9cff;
+      --ok: #2dd4bf;
+      --warn: #f59e0b;
+      --danger: #f87171;
+      --border: #2a3563;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: linear-gradient(120deg, #060914 0%, #0b1020 60%, #101936 100%);
+      color: var(--text);
+    }
+    .container { max-width: 1300px; margin: 0 auto; padding: 16px; }
+    .header {
+      display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    h1 { margin: 0; font-size: 1.35rem; }
+    .sub { color: var(--muted); font-size: .92rem; }
+    .toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
+    button, .btn {
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: .9rem;
+    }
+    button:hover { border-color: var(--accent); }
+    .btn-primary { background: var(--accent); color: #0a1233; border-color: transparent; font-weight: 700; }
+    .layout { display: grid; grid-template-columns: 330px 1fr; gap: 14px; }
+    .panel {
+      background: rgba(18, 25, 52, .85);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      backdrop-filter: blur(2px);
+    }
+    .fields { display: grid; gap: 8px; }
+    label { font-size: .82rem; color: var(--muted); display: grid; gap: 6px; }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #0f1735;
+      color: var(--text);
+      padding: 8px;
+      font: inherit;
+    }
+    textarea { min-height: 90px; resize: vertical; }
+    .small { font-size: .8rem; color: var(--muted); }
+    .pipeline { display: grid; gap: 12px; }
+    .stages { display: grid; grid-template-columns: repeat(5, minmax(170px, 1fr)); gap: 10px; }
+    .stage {
+      background: #0f1735;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .stage h3 {
+      margin: 0;
+      padding: 8px;
+      font-size: .83rem;
+      border-bottom: 1px solid var(--border);
+      color: #c9d4ff;
+      background: #131d42;
+      position: sticky; top: 0;
+    }
+    .cards { padding: 8px; display: grid; gap: 8px; }
+    .card {
+      border: 1px solid var(--border);
+      background: #111a3b;
+      border-radius: 10px;
+      padding: 8px;
+      display: grid;
+      gap: 6px;
+    }
+    .card .title { font-weight: 600; font-size: .92rem; }
+    .meta { color: var(--muted); font-size: .77rem; display: flex; gap: 8px; flex-wrap: wrap; }
+    .card .actions { display: flex; gap: 6px; }
+    .pill { font-size: .72rem; border: 1px solid var(--border); border-radius: 99px; padding: 2px 8px; color: #bcd0ff; }
+    .right-top { display: flex; gap: 8px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+    .search { max-width: 320px; }
+    .assist { border-left: 3px solid var(--ok); padding-left: 8px; color: #bff7ef; font-size: .82rem; }
+    .image-list { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+    .thumb { width: 70px; height: 70px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: 1fr; }
+      .stages { grid-template-columns: repeat(2, minmax(160px, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1>Content Pipeline Manager</h1>
+        <div class="sub">Plan → Write → Produce → Publish. Keep ideas, full scripts, and image attachments in one place.</div>
+      </div>
+      <div class="toolbar">
+        <button id="seedBtn">Load Sample Items</button>
+        <button id="exportBtn">Export JSON</button>
+        <label class="btn">Import JSON <input id="importInput" type="file" accept="application/json" style="display:none"></label>
+        <button id="clearBtn">Reset All</button>
+      </div>
+    </div>
+
+    <div class="layout">
+      <section class="panel">
+        <h3 style="margin:4px 0 10px 0;">Create / Edit Content Item</h3>
+        <form id="itemForm" class="fields">
+          <input type="hidden" id="itemId">
+          <label>Idea / Title
+            <input id="title" required placeholder="e.g. 5 AI prompts for teachers">
+          </label>
+          <label>Platform
+            <select id="platform">
+              <option>General</option>
+              <option>YouTube</option>
+              <option>TikTok</option>
+              <option>Instagram</option>
+              <option>Facebook</option>
+              <option>LinkedIn</option>
+              <option>Blog</option>
+              <option>Newsletter</option>
+            </select>
+          </label>
+          <label>Stage
+            <select id="stage"></select>
+          </label>
+          <label>Due Date
+            <input id="dueDate" type="date">
+          </label>
+          <label>Tags (comma separated)
+            <input id="tags" placeholder="content, ai, teacher">
+          </label>
+          <label>Hook / Angle
+            <textarea id="hook" placeholder="Why this piece matters and the main angle..."></textarea>
+          </label>
+          <label>Full Script
+            <textarea id="script" style="min-height:150px" placeholder="Paste full script here..."></textarea>
+          </label>
+          <label>Notes / Checklist
+            <textarea id="notes" placeholder="Research links, CTA, b-roll ideas, posting notes..."></textarea>
+          </label>
+          <label>Attach Images (optional)
+            <input id="images" type="file" multiple accept="image/*">
+          </label>
+          <div class="small">Images are stored in browser local storage for quick workflow. Keep files lightweight.</div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn-primary" type="submit">Save Item</button>
+            <button type="button" id="newBtn">New</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="pipeline">
+        <div class="panel right-top">
+          <div><strong>Pipeline Board</strong> <span class="small">(10 stages end-to-end)</span></div>
+          <input id="search" class="search" placeholder="Search title/tag/script...">
+        </div>
+
+        <div class="assist panel">
+          <strong>Assistant lane:</strong> I can help you keep this moving. Add a new item, then I’ll help push it to the next stage with hooks, script edits, and publishing checklist.
+        </div>
+
+        <div id="board" class="stages"></div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'content_pipeline_v1';
+    const stages = [
+      '1. Idea Backlog',
+      '2. Research',
+      '3. Hook & Angle',
+      '4. Outline',
+      '5. Draft Script',
+      '6. Edit & Fact Check',
+      '7. Visual Assets',
+      '8. Production',
+      '9. Schedule',
+      '10. Published'
+    ];
+
+    const stageEl = document.getElementById('stage');
+    stages.forEach(s => {
+      const o = document.createElement('option');
+      o.value = s;
+      o.textContent = s;
+      stageEl.appendChild(o);
+    });
+
+    const state = {
+      items: loadItems(),
+      query: ''
+    };
+
+    function uid() {
+      return crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random());
+    }
+
+    function loadItems() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      } catch {
+        return [];
+      }
+    }
+
+    function persist() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.items));
+    }
+
+    function formatDate(d) {
+      if (!d) return 'No due date';
+      return new Date(d + 'T00:00:00').toLocaleDateString();
+    }
+
+    function filtered(items) {
+      const q = state.query.trim().toLowerCase();
+      if (!q) return items;
+      return items.filter(it =>
+        [it.title, it.platform, it.hook, it.script, it.notes, (it.tags || []).join(', ')].join(' ').toLowerCase().includes(q)
+      );
+    }
+
+    function renderBoard() {
+      const board = document.getElementById('board');
+      board.innerHTML = '';
+      const items = filtered(state.items);
+
+      stages.forEach(stage => {
+        const col = document.createElement('div');
+        col.className = 'stage';
+
+        const header = document.createElement('h3');
+        header.textContent = `${stage} (${items.filter(i => i.stage === stage).length})`;
+        col.appendChild(header);
+
+        const cards = document.createElement('div');
+        cards.className = 'cards';
+
+        items.filter(i => i.stage === stage).forEach(item => {
+          const c = document.createElement('div');
+          c.className = 'card';
+
+          c.innerHTML = `
+            <div class="title">${escapeHtml(item.title)}</div>
+            <div class="meta">
+              <span class="pill">${escapeHtml(item.platform || 'General')}</span>
+              <span>${formatDate(item.dueDate)}</span>
+              <span>${(item.images || []).length} image(s)</span>
+            </div>
+            <div class="small">${escapeHtml((item.hook || '').slice(0, 120)) || 'No hook yet.'}</div>
+            <div class="actions">
+              <button data-action="edit" data-id="${item.id}">Edit</button>
+              <button data-action="next" data-id="${item.id}">Next</button>
+              <button data-action="delete" data-id="${item.id}" style="border-color:#5a2a3a;color:#ffb8c7;">Delete</button>
+            </div>
+          `;
+
+          cards.appendChild(c);
+        });
+
+        col.appendChild(cards);
+        board.appendChild(col);
+      });
+    }
+
+    function escapeHtml(str = '') {
+      return str
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
+
+    function resetForm() {
+      document.getElementById('itemForm').reset();
+      document.getElementById('itemId').value = '';
+      document.getElementById('stage').value = stages[0];
+    }
+
+    async function filesToDataURLs(files) {
+      return Promise.all([...files].map(file => new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve({ name: file.name, type: file.type, dataUrl: r.result });
+        r.onerror = reject;
+        r.readAsDataURL(file);
+      })));
+    }
+
+    document.getElementById('itemForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('itemId').value || uid();
+      const images = document.getElementById('images').files;
+      const existing = state.items.find(i => i.id === id);
+      const newImages = images.length ? await filesToDataURLs(images) : [];
+
+      const item = {
+        id,
+        title: document.getElementById('title').value.trim(),
+        platform: document.getElementById('platform').value,
+        stage: document.getElementById('stage').value,
+        dueDate: document.getElementById('dueDate').value,
+        tags: document.getElementById('tags').value.split(',').map(s => s.trim()).filter(Boolean),
+        hook: document.getElementById('hook').value,
+        script: document.getElementById('script').value,
+        notes: document.getElementById('notes').value,
+        images: [...(existing?.images || []), ...newImages],
+        updatedAt: new Date().toISOString()
+      };
+
+      const idx = state.items.findIndex(i => i.id === id);
+      if (idx >= 0) state.items[idx] = item;
+      else state.items.unshift(item);
+
+      persist();
+      renderBoard();
+      showImagePreview(item.images);
+      alert('Saved ✅');
+    });
+
+    document.getElementById('board').addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-id]');
+      if (!btn) return;
+      const id = btn.dataset.id;
+      const action = btn.dataset.action;
+      const item = state.items.find(i => i.id === id);
+      if (!item) return;
+
+      if (action === 'edit') {
+        document.getElementById('itemId').value = item.id;
+        document.getElementById('title').value = item.title || '';
+        document.getElementById('platform').value = item.platform || 'General';
+        document.getElementById('stage').value = item.stage || stages[0];
+        document.getElementById('dueDate').value = item.dueDate || '';
+        document.getElementById('tags').value = (item.tags || []).join(', ');
+        document.getElementById('hook').value = item.hook || '';
+        document.getElementById('script').value = item.script || '';
+        document.getElementById('notes').value = item.notes || '';
+        showImagePreview(item.images || []);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      if (action === 'next') {
+        const i = stages.indexOf(item.stage);
+        item.stage = stages[Math.min(i + 1, stages.length - 1)];
+        item.updatedAt = new Date().toISOString();
+        persist();
+        renderBoard();
+      }
+
+      if (action === 'delete') {
+        if (!confirm('Delete this content item?')) return;
+        state.items = state.items.filter(i => i.id !== id);
+        persist();
+        renderBoard();
+        resetForm();
+      }
+    });
+
+    function showImagePreview(images) {
+      let wrap = document.getElementById('imgPreview');
+      if (!wrap) {
+        wrap = document.createElement('div');
+        wrap.id = 'imgPreview';
+        wrap.className = 'image-list';
+        document.getElementById('itemForm').appendChild(wrap);
+      }
+      wrap.innerHTML = '';
+      (images || []).forEach(img => {
+        const el = document.createElement('img');
+        el.className = 'thumb';
+        el.src = img.dataUrl;
+        el.alt = img.name || 'attachment';
+        wrap.appendChild(el);
+      });
+    }
+
+    document.getElementById('search').addEventListener('input', (e) => {
+      state.query = e.target.value;
+      renderBoard();
+    });
+
+    document.getElementById('newBtn').addEventListener('click', () => {
+      resetForm();
+      showImagePreview([]);
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      if (!confirm('Reset the entire pipeline? This clears local data.')) return;
+      state.items = [];
+      persist();
+      renderBoard();
+      resetForm();
+      showImagePreview([]);
+    });
+
+    document.getElementById('seedBtn').addEventListener('click', () => {
+      if (state.items.length && !confirm('Add samples to existing list?')) return;
+      const samples = [
+        {
+          id: uid(),
+          title: '5 AI classroom hacks in 30 seconds',
+          platform: 'TikTok',
+          stage: '3. Hook & Angle',
+          dueDate: '',
+          tags: ['ai', 'teacher', 'short-form'],
+          hook: 'Teachers are losing hours daily. Here are 5 quick wins in 30 sec.',
+          script: '',
+          notes: 'Need examples + CTA to follow account',
+          images: [],
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: uid(),
+          title: 'Weekly education trend breakdown',
+          platform: 'YouTube',
+          stage: '5. Draft Script',
+          dueDate: '',
+          tags: ['weekly', 'analysis'],
+          hook: 'This week changed how schools use AI. Here is what matters most.',
+          script: 'Intro\nPoint 1\nPoint 2\nOutro CTA',
+          notes: 'Add B-roll list and source links',
+          images: [],
+          updatedAt: new Date().toISOString()
+        }
+      ];
+      state.items = [...samples, ...state.items];
+      persist();
+      renderBoard();
+    });
+
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(state.items, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `content-pipeline-export-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+
+    document.getElementById('importInput').addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const text = await file.text();
+      try {
+        const data = JSON.parse(text);
+        if (!Array.isArray(data)) throw new Error('Invalid format');
+        state.items = data;
+        persist();
+        renderBoard();
+        alert('Import complete ✅');
+      } catch {
+        alert('Invalid JSON file');
+      }
+      e.target.value = '';
+    });
+
+    resetForm();
+    renderBoard();
+  </script>
+</body>
+</html>
