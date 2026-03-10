@@ -7,7 +7,6 @@
 - Avoid lengthy explanations unless explicitly requested
 - Get to the point quickly
 - Skip filler phrases like "Great question!" or "I'd be happy to help!"
-- For GAS generation requests, if user says token-saving phrases (e.g., "reply just this is enough"), return only concise sections: role line + app summary + database structure + features + technology stack (no full code unless asked)
 
 ## Identity
 - **User name:** Kru Bank, Sittichart

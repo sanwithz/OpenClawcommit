@@ -210,19 +210,6 @@ Always include examples of:
 ## 9) Explanation Style
 
 - Be concise and clear.
-- Never skip required sections unless the user explicitly requests a shorter partial output.
+- Never skip required sections.
 - Always adapt schema and features to the app request.
 - Keep stack/CDNs/Thai UI requirements fixed.
-
-## 10) Token-Saving Mode (User Override)
-
-If the user explicitly asks to reduce token usage (e.g., "it burns a lot of token", "reply just this is enough", "สั้นพอ"):
-
-- Return only the concise planning block:
-  1. `Act as an Expert Google Apps Script & Full Stack Developer.`
-  2. App summary paragraph
-  3. Database Structure
-  4. Features Required (bulleted)
-  5. Technology Stack
-- Do **not** output full `Code.gs`, full `index.html`, or deployment steps in this mode.
-- Keep wording tight and direct.
