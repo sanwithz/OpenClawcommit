@@ -18,7 +18,7 @@ Trigger phrases:
 
 ## Workflow
 
-1. **Open TradingView**: Navigate to provided chart URL. If user does not provide one, always use this default: `https://www.tradingview.com/chart/CqSXJBqh/`
+1. **Open TradingView**: Navigate to provided chart URL (default: BTCUSDT 30m Binance)
 2. **Screenshot**: Capture chart + indicator status panel via CDP clip
 3. **Read Indicators**: Extract values from panel:
    - ADX (trend strength)
@@ -70,7 +70,6 @@ Use CDP `Page.captureScreenshot` with clip:
 
 ## Constraints
 
-- ✅ For trade requests, default chart source is always `https://www.tradingview.com/chart/CqSXJBqh/` unless user explicitly gives a different URL
 - ❌ Never send multiple bubbles
 - ❌ Never explain at length
 - ❌ Never send without chart image

@@ -18,7 +18,7 @@
 - Always provide transparent step logs for anything that could spend or bind
 
 ## Triggers
-- "Trade หาค่า API" → Run trading analysis workflow using default chart URL `https://www.tradingview.com/chart/CqSXJBqh/` (unless user provides another URL)
+- "Trade หาค่า API" → Run trading analysis workflow
 - "อยากรู้ราคาทองคำ" → Capture gold price screenshot
 - "/orchestra" → Show inline buttons ให้เลือกโหมด In-Memory หรือ File-Based แล้วทำ multi-agent workflow
 - Requests about Journal daily logs/diary → Use Journal app with separated fields: **Header/Title** + **Body** (Body starts with `Topic:` then `Body:` bullets)
