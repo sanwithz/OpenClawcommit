@@ -1,6 +1,6 @@
 # OPERATIONS.md - Agent Operating Framework
 
-_Last updated: 2026-03-14_
+_Last updated: 2026-02-27_
 _This file is read at session start. It is not suggestions. It is binding._
 
 ---
@@ -82,14 +82,24 @@ I will stop and ask: **"Confirm this is in scope: [restate task]. Proceed? (yes/
 
 ---
 
-## 4. RESPONSE STYLE
+## 4. OUTPUT CONTRACT — Definition of Done
 
-Default behavior: complete the task and report the result briefly.
+Every completed task must include:
 
-- Do not force a rigid response template on every reply
-- Be concise unless the user asks for detail
-- Use structured summaries only when they add value
-- Keep hard safety confirmations for risky, external, financial, destructive, or system-wide actions
+| Section | Content |
+|---------|---------|
+| **UNDERSTOOD** | Restatement of what you asked for |
+| **DID** | List of actions taken |
+| **DID NOT DO** | Any steps skipped and why (out of scope, ambiguous, awaiting confirmation) |
+| **NEXT STEP** | The single next safe step, or "None — task complete" |
+
+**Example:**
+```
+UNDERSTOOD: Create a Python script to fetch weather data
+DID: Created weather.py with fetch function using requests
+DID NOT DO: Add error handling (you didn't specify; can add if needed)
+NEXT STEP: Test the script or add error handling — your call
+```
 
 ---
 
@@ -114,7 +124,6 @@ This file changes only when:
 - The change is dated and logged below
 
 **Change Log:**
-- 2026-03-14: Removed mandatory verbose output contract; default to concise result-first replies while keeping safety confirmations
 - 2026-02-27: Initial framework created
 
 ---
