@@ -1,6 +1,6 @@
 # Task Board
 
-Last Updated: 2026-03-17 21:03 GMT+7
+Last Updated: 2026-03-06 10:29 GMT+7
 
 ## Legend
 - **Status:** `Todo` | `In Progress` | `Blocked` | `Done`
@@ -12,12 +12,6 @@ Last Updated: 2026-03-17 21:03 GMT+7
 |---|---|---|---|---|---|
 | T-001 | Build shared task board and start real-time updates | Done | Assistant | Initial board setup requested in Telegram | 2026-03-06 10:29 GMT+7 |
 | T-002 | Keep this task board updated for all ongoing work | In Progress | Assistant | Standing operating task from user request | 2026-03-06 10:29 GMT+7 |
-| T-003 | PDF reports app | Todo | Kru Bank | Added to this week's working list | 2026-03-17 21:03 GMT+7 |
-| T-004 | A-Level Biology 2569 answers and Quizizz | Todo | Kru Bank | Added to this week's working list | 2026-03-17 21:03 GMT+7 |
-| T-005 | Uwa project webapp | Todo | Kru Bank | Added to this week's working list | 2026-03-17 21:03 GMT+7 |
-| T-006 | Form to PDF project | Todo | Kru Bank | Added to this week's working list | 2026-03-17 21:03 GMT+7 |
-| T-007 | M.5 Alpha sheet | Todo | Kru Bank | Added to this week's working list | 2026-03-17 21:03 GMT+7 |
-| T-008 | YouTube: bring old work to clips (wording to confirm) | Todo | Kru Bank | Added from chat; needs clarification on exact deliverable | 2026-03-17 21:03 GMT+7 |
 
 ## Update Rules (Working Agreement)
 1. Every new task from either of us gets added here immediately.
