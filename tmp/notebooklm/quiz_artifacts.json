@@ -1,0 +1,17 @@
+{
+  "notebook_id": "b68116a3-fc12-46ac-bb00-54cb99ddc038",
+  "notebook_title": "Campbell Biology",
+  "artifacts": [
+    {
+      "index": 1,
+      "id": "b051c722-6a64-4d44-b778-0f66b48f6712",
+      "title": "\u0e0a\u0e35\u0e27\u0e27\u0e34\u0e17\u0e22\u0e32 \u0e02\u0e49\u0e2d\u0e2a\u0e2d\u0e1a",
+      "type": "Quiz",
+      "type_id": "quiz",
+      "status": "completed",
+      "status_id": 3,
+      "created_at": "2026-03-03T15:27:28"
+    }
+  ],
+  "count": 1
+}

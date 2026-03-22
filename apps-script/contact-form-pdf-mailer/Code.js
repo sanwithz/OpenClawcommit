@@ -7,7 +7,21 @@ const APP = {
 
 class Utils {
   constructor() {
-    this.ss = SpreadsheetApp.getActive();
+    this.ss = this.getOrCreateSpreadsheet();
+  }
+
+  getOrCreateSpreadsheet() {
+    const props = PropertiesService.getScriptProperties();
+    let spreadsheetId = props.getProperty('SPREADSHEET_ID');
+
+    if (!spreadsheetId) {
+      const ss = SpreadsheetApp.create(`${APP.NAME} Data`);
+      spreadsheetId = ss.getId();
+      props.setProperty('SPREADSHEET_ID', spreadsheetId);
+      return ss;
+    }
+
+    return SpreadsheetApp.openById(spreadsheetId);
   }
 
   getOrCreateSheet(name) {
@@ -76,6 +90,7 @@ class App {
       ok: true,
       message: 'บันทึกข้อมูล + สร้าง PDF + ส่งอีเมลเรียบร้อย',
       sentTo: APP.RECIPIENT_EMAIL,
+      spreadsheetUrl: this.utils.ss.getUrl(),
     };
   }
 }
