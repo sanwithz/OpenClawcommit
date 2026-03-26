@@ -2,24 +2,34 @@
 /**
  * Telegram Bot Menu Handler
  * Handles /menu and botCM commands plus inline keyboard callbacks
- * botCM buttons now execute real OpenClaw CLI actions where possible.
  */
 
-import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
-
-const execFileAsync = promisify(execFile);
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN || '';
 const GROUP_ID = process.env.TELEGRAM_GROUP_ID || '-1003841695178';
+
 const API_URL = `https://api.telegram.org/bot${TOKEN}`;
-const OPENCLAW_BIN = 'openclaw';
 
 const MENU_ITEMS = {
-  gold_price: { text: '🥇 หาราคาทอง', callback: 'gold_price' },
-  trade_image: { text: '📊 เทรดผ่านรูปภาพ', callback: 'trade_image' },
-  fallback_api: { text: '🔄 Fallback API', callback: 'fallback_api' },
-  kanban_board: { text: '📋 บอร์ดงาน', callback: 'kanban_board' },
-  trading_logger: { text: '📈 Trading Logger', callback: 'trading_logger' }
+  gold_price: {
+    text: '🥇 หาราคาทอง',
+    callback: 'gold_price'
+  },
+  trade_image: {
+    text: '📊 เทรดผ่านรูปภาพ',
+    callback: 'trade_image'
+  },
+  fallback_api: {
+    text: '🔄 Fallback API',
+    callback: 'fallback_api'
+  },
+  kanban_board: {
+    text: '📋 บอร์ดงาน',
+    callback: 'kanban_board'
+  },
+  trading_logger: {
+    text: '📈 Trading Logger',
+    callback: 'trading_logger'
+  }
 };
 
 const BOTCM_ITEMS = {
@@ -45,13 +55,20 @@ async function telegram(method, payload) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
+
   const data = await res.json();
-  if (!data.ok) throw new Error(`Telegram API error (${method}): ${JSON.stringify(data)}`);
+  if (!data.ok) {
+    throw new Error(`Telegram API error (${method}): ${JSON.stringify(data)}`);
+  }
   return data;
 }
 
 async function sendMessage(chatId, text, replyMarkup = null) {
-  const payload = { chat_id: chatId, text, parse_mode: 'HTML' };
+  const payload = {
+    chat_id: chatId,
+    text,
+    parse_mode: 'HTML'
+  };
   if (replyMarkup) payload.reply_markup = replyMarkup;
   return telegram('sendMessage', payload);
 }
@@ -61,35 +78,6 @@ async function answerCallback(callbackId, text = '') {
     callback_query_id: callbackId,
     text: text || undefined
   });
-}
-
-function escapeHtml(text = '') {
-  return String(text)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-}
-
-async function runOpenClaw(args) {
-  const { stdout, stderr } = await execFileAsync(OPENCLAW_BIN, args, {
-    timeout: 30000,
-    maxBuffer: 1024 * 1024
-  });
-  return { stdout: stdout?.trim() || '', stderr: stderr?.trim() || '' };
-}
-
-async function runOpenClawSafe(args) {
-  try {
-    const result = await runOpenClaw(args);
-    return { ok: true, ...result };
-  } catch (error) {
-    return {
-      ok: false,
-      stdout: error?.stdout?.trim?.() || '',
-      stderr: error?.stderr?.trim?.() || '',
-      message: error?.message || String(error)
-    };
-  }
 }
 
 function buildMenuKeyboard() {
@@ -107,7 +95,7 @@ function buildMenuKeyboard() {
 }
 
 function buildMenuText() {
-  return `<b>🤖 OpenClaw Control Menu</b>\n\nเลือก action ที่ต้องการ:\n\n🥇 <b>หาราคาทอง</b>\nดึงราคาทองคำ + จับภาพหน้าจอส่งเข้ากลุ่ม\n\n📊 <b>เทรดผ่านรูปภาพ</b>\nอ่านภาพกราฟ/สลิปเทรด วิเคราะห์แผน + บันทึกผล\n\n🔄 <b>Fallback API</b>\nสลับโมเดลตาม chain\n\n📋 <b>บอร์ดงาน</b>\nKanban board สถานะงาน + Daily Summary + Export\n\n📈 <b>Trading Logger</b>\nบันทึกและดูสถิติการเทรด`;
+  return `<b>🤖 OpenClaw Control Menu</b>\n\nเลือก action ที่ต้องการ:\n\n🥇 <b>หาราคาทอง</b>\nดึงราคาทองคำ + จับภาพหน้าจอส่งเข้ากลุ่ม\n\n📊 <b>เทรดผ่านรูปภาพ</b>\nอ่านภาพกราฟ/สลิปเทรด วิเคราะห์แผน + บันทึกผล\n\n🔄 <b>Fallback API</b>\nสลับโมเดลตาม chain: Claude → Codex → Kimi → OpenRouter → Kimi-coding\n\n📋 <b>บอร์ดงาน</b>\nKanban board สถานะงาน + Daily Summary + Export\n\n📈 <b>Trading Logger</b>\nบันทึกและดูสถิติการเทรด`;
 }
 
 function buildBotCMKeyboard() {
@@ -157,100 +145,36 @@ async function handleBotCMCommand(chatId) {
   await sendMessage(chatId, buildBotCMText(), buildBotCMKeyboard());
 }
 
-async function getTinyStatusText() {
-  const status = await runOpenClawSafe(['status', '--usage', '--json']);
-  if (!status.ok || !status.stdout) {
-    return `📉 <b>TinyStatus</b>\n\nไม่สามารถดึงข้อมูลได้ตอนนี้\n<code>${escapeHtml(status.stderr || status.message || 'unknown error')}</code>`;
-  }
-
-  try {
-    const data = JSON.parse(status.stdout);
-    const recent = data?.sessions?.recent?.[0];
-    if (!recent || recent.percentUsed == null || recent.remainingTokens == null || recent.contextTokens == null) {
-      return `📉 <b>TinyStatus</b>\n\nยังไม่มีข้อมูล quota ล่าสุดพอให้คำนวณ`; 
-    }
-
-    const used = `${recent.percentUsed}%`;
-    const left = `${100 - Number(recent.percentUsed)}%`;
-    return [
-      '📉 <b>TinyStatus</b>',
-      '',
-      `Used: ${escapeHtml(used)}`,
-      `Left: ${escapeHtml(left)}`,
-      `Context: ${escapeHtml(String(recent.remainingTokens))} / ${escapeHtml(String(recent.contextTokens))} left`,
-      `Model: <code>${escapeHtml(recent.model || 'unknown')}</code>`
-    ].join('\n');
-  } catch (e) {
-    return `📉 <b>TinyStatus</b>\n\nparse error\n<code>${escapeHtml(String(e))}</code>`;
-  }
-}
-
-async function getStatusText() {
-  const result = await runOpenClawSafe(['status', '--all']);
-  const body = result.stdout || result.stderr || result.message || 'No output';
-  return `<b>📊 OpenClaw Status</b>\n\n<pre>${escapeHtml(body.slice(0, 3500))}</pre>`;
-}
-
-async function switchModel(model) {
-  const setRes = await runOpenClawSafe(['models', 'set', model]);
-  if (!setRes.ok) {
-    return `❌ <b>Switch model failed</b>\n\n<code>${escapeHtml(setRes.stderr || setRes.message)}</code>`;
-  }
-
-  const statusRes = await runOpenClawSafe(['models', 'status', '--plain']);
-  const current = statusRes.stdout || model;
-  return `✅ <b>Model switched</b>\n\nCurrent default model:\n<code>${escapeHtml(current)}</code>`;
-}
-
-async function executeBotCMAction(data) {
+function buildBotCMResponse(data) {
   switch (data) {
     case 'oc_status':
-      return await getStatusText();
-
+      return '📊 <b>Status</b>\n\nใน OpenClaw ให้ใช้:\n<code>/status</code>';
     case 'oc_tinystatus':
-      return await getTinyStatusText();
-
+      return '📉 <b>TinyStatus</b>\n\nใช้:\n<code>/tinystatus</code>';
     case 'oc_model_kimi':
-      return await switchModel('moonshot/kimi-k2.5');
-
+      return '🌙 <b>Switch to Kimi</b>\n\nใช้:\n<code>/model moonshot/kimi-k2.5</code>';
     case 'oc_model_sonnet':
-      return await switchModel('sonnet');
-
+      return '🧠 <b>Switch to Sonnet</b>\n\nใช้:\n<code>/model sonnet</code>';
     case 'oc_model_opus':
-      return await switchModel('anthropic/claude-opus-4');
-
+      return '🎯 <b>Switch to Opus</b>\n\nใช้:\n<code>/model anthropic/claude-opus-4</code>';
     case 'oc_model_gemini':
-      return await switchModel('gemini-flash');
-
+      return '💎 <b>Switch to Gemini</b>\n\nใช้:\n<code>/model gemini-flash</code>';
     case 'oc_plan':
-      return '✅ <b>Plan mode ready</b>\n\nต่อจากนี้ส่งงานมาได้เลย\nผมจะวางแผนก่อนลงมือทำ';
-
-    case 'oc_reasoning': {
-      const res = await runOpenClawSafe(['config', 'set', 'agents.defaults.thinking', 'high']);
-      if (!res.ok) {
-        return `❌ <b>Think Harder failed</b>\n\n<code>${escapeHtml(res.stderr || res.message)}</code>`;
-      }
-      return '✅ <b>Think Harder enabled</b>\n\nตั้งค่า default thinking = <code>high</code> แล้ว';
-    }
-
+      return '📝 <b>Plan First</b>\n\nพิมพ์ต่อได้เลย:\n<code>make a plan first, then implement</code>';
+    case 'oc_reasoning':
+      return '🧩 <b>Think Harder</b>\n\nใช้:\n<code>/reasoning</code>\nหรือบอกว่า <code>think harder</code>';
     case 'oc_browser':
-      return '🌐 <b>Browser mode</b>\n\nส่งงานต่อได้เลย เช่น\n<code>open example.com and click login</code>';
-
+      return '🌐 <b>Browser Mode</b>\n\nพิมพ์สิ่งที่ต้องการ เช่น:\n<code>open this site and click login</code>';
     case 'oc_agents':
-      return '🤖 <b>Agents mode</b>\n\nส่งงานต่อได้เลย เช่น\n<code>run in claude code: review this repo</code>';
-
+      return '🤖 <b>Agents</b>\n\nพิมพ์เช่น:\n<code>run in claude code: review this repo</code>';
     case 'oc_backtrack':
-      return '↩️ <b>Backtrack</b>\n\nส่งข้อความต่อว่า\n<code>ignore the last direction and go back one step</code>';
-
+      return '↩️ <b>Backtrack</b>\n\nพิมพ์:\n<code>ignore the last direction and go back one step</code>';
     case 'oc_cheatsheet':
-      return '📚 <b>Cheatsheet</b>\n\n<code>botCM</code>\n<code>/menu</code>\n<code>/status</code>\n<code>/tinystatus</code>\n<code>/model ...</code>\n<code>/reasoning</code>';
-
+      return '📚 <b>Cheatsheet</b>\n\nหลัก ๆ คือ:\n<code>/new</code> <code>/reset</code> <code>/status</code> <code>/tinystatus</code> <code>/model ...</code> <code>/reasoning</code>';
     case 'oc_newtask':
-      return '🆕 <b>New Task</b>\n\nพิมพ์โจทย์ใหม่มาได้เลย — ผมจะถือว่าเป็นงานใหม่ทันที';
-
+      return '🆕 <b>New Task</b>\n\nเริ่มงานใหม่ได้ด้วย:\n<code>/new</code>\nหรือพิมพ์โจทย์ใหม่มาได้เลย';
     case 'oc_help':
-      return '❓ <b>Help</b>\n\n• <code>botCM</code> = เปิดปุ่มคำสั่ง\n• <code>/menu</code> = เมนูงาน\n• ปุ่ม model / status ตอนนี้สั่งงานจริงแล้ว';
-
+      return '❓ <b>Help</b>\n\nถ้าจะใช้งานแบบเร็ว:\n• <code>botCM</code> = เปิดปุ่มคำสั่ง\n• <code>/menu</code> = เมนูงาน\n• <code>/status</code> = สถานะ session';
     default:
       return '❌ ไม่รู้จักคำสั่งนี้';
   }
@@ -260,7 +184,7 @@ async function handleCallback(callbackQuery) {
   const { id: callbackId, message, data } = callbackQuery;
   const chatId = message.chat.id;
 
-  await answerCallback(callbackId, 'Working...');
+  await answerCallback(callbackId);
 
   let responseText = '';
   let additionalKeyboard = null;
@@ -269,17 +193,14 @@ async function handleCallback(callbackQuery) {
     case 'gold_price':
       responseText = `🥇 <b>หาราคาทอง</b>\n\nกำลังดึงราคาทองคำล่าสุด...\n\n💡 <i>Tip:</i> ส่งรูปภาพกราฟทองคำมา ผมจะวิเคราะห์ให้ทันที`;
       break;
-
     case 'trade_image':
       responseText = `📊 <b>เทรดผ่านรูปภาพ</b>\n\nกรุณาส่ง:\n• ภาพกราฟจาก TradingView\n• สลิปเทรดจาก Binance\n• ภาพอื่นที่เกี่ยวกับการเทรด\n\nผมจะวิเคราะห์และบันทึกผลให้อัตโนมัติ`;
       break;
-
     case 'fallback_api':
       responseText = `🔄 <b>Fallback API Chain</b>\n\nปัจจุบันใช้โมเดล: <code>gpt-5.4</code>\n\nลำดับตัวอย่าง:\n1. GPT-5.4\n2. Kimi K2.5\n3. Sonnet\n4. Gemini`;
       break;
-
     case 'kanban_board':
-      responseText = `📋 <b>Kanban Board</b>\n\nไฟล์:\n• <code>kanban-board/index.html</code>\n• <code>tasks/todo.md</code>\n• <code>tasks/lessons.md</code>\n\nสถานะ:\n🟡 In Progress | 🟢 Done | 🔴 Blocked`;
+      responseText = `📋 <b>Kanban Board</b>\n\nไฟล์:\n• <code>kanban-board/index.html</code> - Daily Summary\n• <code>tasks/todo.md</code> - งานที่ต้องทำ\n• <code>tasks/lessons.md</code> - บทเรียน\n\nสถานะ:\n🟡 In Progress | 🟢 Done | 🔴 Blocked`;
       additionalKeyboard = {
         inline_keyboard: [
           [{ text: '📂 เปิด Kanban', url: 'http://127.0.0.1:5500/kanban-board/index.html' }],
@@ -287,7 +208,6 @@ async function handleCallback(callbackQuery) {
         ]
       };
       break;
-
     case 'trading_logger':
       responseText = `📈 <b>Trading Logger</b>\n\nระบบบันทึกการเทรด:\n• ดูสถิติรายปี\n• Win/Loss ratio\n• กำไร/ขาดทุนสะสม\n• Export CSV\n\nส่งผลเทรดมา ผมจะบันทึกให้ทันที`;
       additionalKeyboard = {
@@ -297,23 +217,20 @@ async function handleCallback(callbackQuery) {
         ]
       };
       break;
-
     case 'back_to_menu':
       await handleMenuCommand(chatId);
       return;
-
-    case 'back_to_botcm':
-      await handleBotCMCommand(chatId);
-      return;
-
     default:
       if (data.startsWith('oc_')) {
-        responseText = await executeBotCMAction(data);
+        responseText = buildBotCMResponse(data);
         additionalKeyboard = {
           inline_keyboard: [
             [{ text: '🔙 กลับ botCM', callback_data: 'back_to_botcm' }]
           ]
         };
+      } else if (data === 'back_to_botcm') {
+        await handleBotCMCommand(chatId);
+        return;
       } else {
         responseText = '❌ ไม่รู้จำคำสั่งนี้';
       }
@@ -333,6 +250,7 @@ async function getUpdates() {
   try {
     const res = await fetch(`${API_URL}/getUpdates?offset=${lastUpdateId + 1}&limit=20`);
     const data = await res.json();
+
     if (!data.ok || !data.result.length) return;
 
     for (const update of data.result) {
