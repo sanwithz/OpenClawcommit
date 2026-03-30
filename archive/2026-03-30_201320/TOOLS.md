@@ -125,13 +125,6 @@ Package: `cd skills && ./package.sh`
 - Key patterns: class-based App+Utils, HtmlService templates, Sheets API, Drive API, SlidesApp, CalendarApp
 - Ref projects: Slide automation, Approval workflow, Product entry form, Calendar watcher
 
-### gogcli (Google CLI)
-- Installed via Homebrew: `gogcli`
-- Binary: `/opt/homebrew/bin/gog`
-- Check: `gog --version`
-- Workspace skill: `skills/gogcli/SKILL.md`
-- Preferred Google account for assistant operations: `opensanwithz@gmail.com`
-
 ### Trading Tools
 
 - Simulator: `/Users/sanwithz/Documents/Zzz/workspace/Trading Simulator/index.html`
