@@ -36,20 +36,6 @@ message({
 })
 ```
 
-## "/lifeOS"
-**Action:** Activate the Life OS response style and route the request through the game-minded framework.
-
-**Skill:** `skills/life-os/SKILL.md`
-
-**Behavior:**
-- Frame goals as missions
-- Break tasks into quests
-- Suggest a first playable move
-- Use momentum, checkpoints, XP/streaks, and obstacle framing when useful
-- Keep it practical, not cringe
-
----
-
 ## "recharge" or "เติมเงิน" or "top up"
 **Action:** Send Telegram buttons for topping up both MiniMax and Kimi/Moonshot.
 
