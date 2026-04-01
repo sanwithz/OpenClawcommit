@@ -140,11 +140,6 @@ Package: `cd skills && ./package.sh`
 - Stats CSV: `/Users/sanwithz/Documents/Zzz/workspace/memory/trading-stats.csv`
 - Telegram group for alerts: "Minion | Shromp world"
 
-### Life OS Skill
-- Workspace skill: `skills/life-os/SKILL.md`
-- Use when user wants game-minded planning, anti-procrastination, momentum coaching, XP/streak systems, mission design, or reflective debriefs
-- Tone: motivating but grounded, practical, playful without cringe
-
 ### Telegram Bot Token
 - **Token:** `8020047301:AAGfwz4L--nD6DWCZoN9u9JEVJnsH3c-B8o`
 - **Usage:** ใช้สำหรับส่งข้อความ/รายงานอัตโนมัติ
