@@ -25,6 +25,16 @@ Use local wrapper:
 scripts/nlmpy
 ```
 
+## Export helper
+Use:
+```bash
+scripts/notebooklm_to_obsidian.sh
+```
+
+## Related Notes
+- [[../04 Knowledge Workflows/NotebookLM Export Workflow|NotebookLM Export Workflow]]
+- [[../03 Prompt Library/NotebookLM Prompts|NotebookLM Prompts]]
+
 ## Rule
 NotebookLM is for exploring source material.
 Obsidian is for keeping the canonical long-term knowledge.
