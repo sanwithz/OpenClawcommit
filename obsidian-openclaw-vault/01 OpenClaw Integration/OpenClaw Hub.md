@@ -7,6 +7,7 @@ This section defines how OpenClaw works with the vault.
 - [[OpenClaw Configuration]]
 - [[OpenClaw Setup]]
 - [[MCP Tools & Skills]]
+- [[OpenClaw Command System]]
 - [[Commands Folder]]
 - [[Context Loading Strategies]]
 - [[Session Memory System]]

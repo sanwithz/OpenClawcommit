@@ -33,18 +33,25 @@ Inside `12 Operations/`:
 - `12.05 Archive/`
 
 ## Dashboards
+- `08 Visualization/Central Dashboard.md`
 - `08 Visualization/Inbox Dashboard.md`
 - `08 Visualization/Projects Dashboard.md`
 - `08 Visualization/Areas Dashboard.md`
 - `08 Visualization/Reviews Dashboard.md`
 - `08 Visualization/Knowledge Dashboard.md`
 
+## RAG / Knowledge Layer
+- `00 Vault Foundation/RAG-Ready Vault Rules.md`
+- `00 Vault Foundation/Metadata Schema by Note Type.md`
+- `.openclaw/commands/`
+
 ## Suggested First Notes to Open
-1. `00 Vault Foundation/Vault Home.md`
-2. `08 Visualization/Projects Dashboard.md`
-3. `12 Operations/12.02 Projects/Project Index.md`
-4. `12 Operations/12.03 Areas/Area Index.md`
-5. `12 Operations/12.04 Resources/Resource Index.md`
+1. `08 Visualization/Central Dashboard.md`
+2. `00 Vault Foundation/Vault Home.md`
+3. `01 OpenClaw Integration/OpenClaw Hub.md`
+4. `12 Operations/12.02 Projects/Project Index.md`
+5. `12 Operations/12.03 Areas/Area Index.md`
+6. `12 Operations/12.04 Resources/Resource Index.md`
 
 ## Plugin Recommendation
 To use the dashboards, install the **Dataview** community plugin in Obsidian.

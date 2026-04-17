@@ -8,6 +8,7 @@ Core idea:
 - OpenClaw helps capture, process, connect, summarize, automate, and maintain it
 
 ## Start Here
+- [[../08 Visualization/Central Dashboard|Central Dashboard]]
 - [[Inbox Dashboard]]
 - [[Projects Dashboard]]
 - [[Areas Dashboard]]
@@ -19,6 +20,8 @@ Core idea:
 - [[MOCs & Hub Notes]]
 - [[Templates System]]
 - [[Metadata & Dataview]]
+- [[Metadata Schema by Note Type]]
+- [[RAG-Ready Vault Rules]]
 - [[Attachment Management]]
 
 ## Main Hubs
