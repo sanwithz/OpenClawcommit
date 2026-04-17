@@ -21,6 +21,10 @@ source:
 - [[Knowledge Dashboard]]
 - [[Task Boards]]
 - [[Active Work Board]]
+- [[Project Health Dashboard]]
+- [[Stale Notes Dashboard]]
+- [[Area Focus Dashboard]]
+- [[DataviewJS Dashboard Lab]]
 
 ## Work Areas
 - [[../12 Operations/12.01 Inbox/README|Inbox]]
@@ -35,8 +39,17 @@ source:
 ## Operating Rules
 - [[../00 Vault Foundation/RAG-Ready Vault Rules|RAG-Ready Vault Rules]]
 - [[../00 Vault Foundation/Metadata Schema by Note Type|Metadata Schema by Note Type]]
+- [[../00 Vault Foundation/Daily Startup Checklist|Daily Startup Checklist]]
 - [[../01 OpenClaw Integration/Context Loading Strategies|Context Loading Strategies]]
 - [[../01 OpenClaw Integration/Session Memory System|Session Memory System]]
+
+## Prompt Library
+- [[../03 Prompt Library/OpenClaw Operating Prompts|OpenClaw Operating Prompts]]
+- [[../03 Prompt Library/Daily OpenClaw Prompts|Daily OpenClaw Prompts]]
+
+## Plugin Operations
+- [[../02 Core Plugins/QuickAdd Capture Flows|QuickAdd Capture Flows]]
+- [[../02 Core Plugins/QuickAdd Setup Checklist|QuickAdd Setup Checklist]]
 
 ## Action Dashboards
 ### Inbox Count
@@ -79,8 +92,9 @@ LIMIT 15
 ```
 
 ## Suggested Workflow
-1. Capture into Inbox
-2. Process into Project / Area / Resource notes
-3. Review dashboards
-4. Update canonical notes
-5. Generate weekly/monthly synthesis
+1. Open dashboard
+2. Check tasks and active work
+3. Open or create daily note
+4. Process inbox
+5. Work projects
+6. Review and capture again before closing
