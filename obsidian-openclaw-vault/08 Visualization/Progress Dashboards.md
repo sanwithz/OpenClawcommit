@@ -1,7 +1,15 @@
 # Progress Dashboards
 
-## Possible Dashboards
-- active projects
-- current learning themes
-- weekly review summary
-- content pipeline overview
+## Main Dashboards
+- [[Inbox Dashboard]]
+- [[Projects Dashboard]]
+- [[Areas Dashboard]]
+- [[Reviews Dashboard]]
+- [[Knowledge Dashboard]]
+
+## Purpose
+Dashboards should surface:
+- what needs processing
+- what is active now
+- what is stalled
+- what changed recently

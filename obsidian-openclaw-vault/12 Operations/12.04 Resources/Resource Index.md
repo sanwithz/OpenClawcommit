@@ -1,0 +1,30 @@
+---
+type: index
+status: active
+created: 2026-04-17
+updated: 2026-04-17
+tags: [resources]
+area:
+project:
+source:
+---
+
+# Resource Index
+
+## Evergreen Notes
+```dataview
+TABLE area, project, file.mtime as Updated
+FROM "12 Operations/12.04 Resources"
+WHERE type = "evergreen"
+SORT file.mtime desc
+LIMIT 50
+```
+
+## Literature Notes
+```dataview
+TABLE source, area, file.mtime as Updated
+FROM "12 Operations/12.04 Resources"
+WHERE type = "literature"
+SORT file.mtime desc
+LIMIT 50
+```

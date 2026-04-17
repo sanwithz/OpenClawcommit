@@ -7,6 +7,13 @@ Core idea:
 - Obsidian stores knowledge
 - OpenClaw helps capture, process, connect, summarize, automate, and maintain it
 
+## Start Here
+- [[Inbox Dashboard]]
+- [[Projects Dashboard]]
+- [[Areas Dashboard]]
+- [[Reviews Dashboard]]
+- [[Knowledge Dashboard]]
+
 ## Core Maps
 - [[Folder Structure]]
 - [[MOCs & Hub Notes]]
@@ -19,6 +26,13 @@ Core idea:
 - [[../04 Knowledge Workflows/Workflow Hub|Workflow Hub]]
 - [[../06 Daily Systems/Daily Systems Hub|Daily Systems Hub]]
 - [[../09 Maintenance & Optimization/Maintenance Hub|Maintenance Hub]]
+
+## Working System
+- [[../12 Operations/12.01 Inbox/README|Inbox]]
+- [[../12 Operations/12.02 Projects/README|Projects]]
+- [[../12 Operations/12.03 Areas/README|Areas]]
+- [[../12 Operations/12.04 Resources/README|Resources]]
+- [[../12 Operations/12.05 Archive/README|Archive]]
 
 ## Rules
 - Capture quickly

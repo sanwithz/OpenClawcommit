@@ -13,10 +13,19 @@
 - `09 Maintenance & Optimization/` — cleanup, tuning, backups, context optimization
 - `10 Community & Resources/` — references, best practices, examples
 - `11 Evolution & Scaling/` — future system growth and collaboration models
+- `12 Operations/` — practical day-to-day PARA-style working folders
 - `90 Templates/` — reusable note templates
 - `99 Attachments/` — images, PDFs, media, generated files
+
+## Operations Structure
+- `12.01 Inbox/` — raw capture and unprocessed notes
+- `12.02 Projects/` — active outcome-driven work
+- `12.03 Areas/` — ongoing responsibilities
+- `12.04 Resources/` — reference material and evergreen support notes
+- `12.05 Archive/` — inactive projects and retired material
 
 ## Design Notes
 - Numbered folders keep the vault predictable.
 - Hubs/MOCs should point to working notes, not become dead directories.
 - Keep heavy files in `99 Attachments/`.
+- Keep active work in `12 Operations/`; use the other sections as system guidance and support layers.
