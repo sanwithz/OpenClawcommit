@@ -1,5 +1,7 @@
 # HEARTBEAT.md
 
-# Keep this file empty (or with only comments) to skip heartbeat API calls.
+# Heartbeat tasks
 
-# Add tasks below when you want the agent to check something periodically.
+- Check weekly quota reset timing.
+- If weekly reset is within 24 hours and there is still plenty of weekly quota left, proactively alert Kru Bank.
+- Otherwise reply HEARTBEAT_OK.

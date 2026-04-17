@@ -1,0 +1,140 @@
+# MEMORY.md - Long-Term Memory
+
+## User Preferences
+
+### Response Style
+- **Keep responses concise and brief** - User prefers minimal token usage due to cost concerns
+- Avoid lengthy explanations unless explicitly requested
+- Get to the point quickly
+- Skip filler phrases like "Great question!" or "I'd be happy to help!"
+- For GAS generation requests, if user says token-saving phrases (e.g., "reply just this is enough"), return only concise sections: role line + app summary + database structure + features + technology stack (no full code unless asked)
+
+## Identity
+- **User name:** Kru Bank, Sittichart
+- **Timezone:** Asia/Bangkok
+
+## Financial Safety Rule (CRITICAL)
+- Never initiate, confirm, or enable any payment, purchase, subscription, auto-renew, trial-to-paid, wallet/card action without explicit written user approval first
+- Always provide transparent step logs for anything that could spend or bind
+
+## Triggers
+- "Trade หาค่า API" → Run trading analysis workflow using default chart URL `https://www.tradingview.com/chart/CqSXJBqh/` (unless user provides another URL)
+- "อยากรู้ราคาทองคำ" → Capture gold price screenshot
+- "/orchestra" → Show inline buttons ให้เลือกโหมด In-Memory หรือ File-Based แล้วทำ multi-agent workflow
+- "/lifeOS" → Activate `skills/life-os/SKILL.md` and answer in the Life OS game-minded framework
+- Requests about Journal daily logs/diary → Use Journal app with separated fields: **Header/Title** + **Body** (Body starts with `Topic:` then `Body:` bullets)
+- "บันทึกสิ่งที่ทำวันนี้ลงไปใน Journal" → Create a new Journal daily report immediately using journal-daily-report format
+- "Update journal" → Use workflow: `ใช้จากงานวันนี้เลย` → `Add this to my Journal App` → `Use All English`; final Journal content must be English-only.
+
+## App Workflow Preference
+- Obsidian-first for knowledge capture
+- Freeform as local visual database/table companion
+- Journal app is the Daily Report system
+
+## Google Workspace Automation Preference
+- Use unified skill: `skills/google-workspace-manager/SKILL.md`
+- Two operation modes:
+  - `READ-ONLY` for safe inspection/summaries (no writes)
+  - `ACTION` for create/update/send operations with step logs
+- Default account for operations: `opensanwithz@gmail.com`
+
+## QuickChart QR Code Generator
+- **URL:** `https://quickchart.io/qr?text=URL&size=300`
+- **Params:** text, size, ecLevel (L/M/Q/H), dark, light colors
+- **Usage:** `curl -s "https://quickchart.io/qr?text=...&size=300" -o qr.png`
+
+## Shopping List Workflow
+For shopping/errand lists: Use plain text checklist in chat (☐/☑ format) — no need to create apps or HTML files. User updates progress by typing in chat, I update the list and reply with current status.
+
+## Vibe Coding Skill
+Technical co-founder mode for building real products:
+- Location: `skills/vibe-coding/SKILL.md`
+- Use when: User wants to build something they can use/share/launch
+- Framework: Discovery → Planning → Building → Polish → Handoff
+- Key principle: Build real products, keep user in control, translate jargon
+
+## Anthropic Skills Library
+Downloaded 15 skills from https://github.com/anthropics/skills/tree/main/skills
+Location: `skills/anthropic/`
+
+| Skill | Use When |
+|-------|----------|
+| **algorithmic-art** | Creating generative art with p5.js, flow fields, particle systems |
+| **brand-guidelines** | Applying Anthropic brand colors/typography to artifacts |
+| **canvas-design** | Creating visual art (.png/.pdf) with design philosophy |
+| **doc-coauthoring** | Writing docs, proposals, specs with structured workflow |
+| **docx** | Creating/editing Word documents |
+| **frontend-design** | Building web components/pages with high design quality |
+| **internal-comms** | Writing 3P updates, newsletters, FAQs, status reports |
+| **mcp-builder** | Building MCP servers for external API integration |
+| **pdf** | PDF processing (merge, split, extract, OCR, forms) |
+| **pptx** | Creating/editing PowerPoint presentations |
+| **slack-gif-creator** | Creating animated GIFs optimized for Slack |
+| **theme-factory** | Applying consistent themes to slides/docs |
+| **web-artifacts-builder** | Complex claude.ai artifacts with React + shadcn/ui |
+| **webapp-testing** | Testing local web apps with Playwright |
+| **xlsx** | Creating/editing Excel spreadsheets |
+| **skill-creator** | Framework for building/evaluating skills |
+
+## Skill Creator Reference
+Anthropic's skill-creator framework for building/evaluating skills:
+- Location: `skills/skill-creator-anthropic/`
+- Source: https://github.com/anthropics/skills/tree/main/skills/skill-creator
+- Core workflow: Draft → Test (with/without baseline) → Grade → Benchmark → Human Review → Iterate
+- Key tool: `eval-viewer/generate_review.py` for HTML review viewer
+- Use when: Creating new skills, improving existing, optimizing descriptions
+
+## SkillForge Installed
+- Location: `skills/skillforge/`
+- Source: https://github.com/tripleyak/SkillForge
+- Purpose: intelligent skill routing + skill creation/improvement framework
+- Extra capability unlocked: triage input to recommend existing skills first, then improve or create new skills when needed
+
+## Frontend CDNs (Standard Stack)
+When designing frontend, integrate these CDNs:
+```html
+<!-- jQuery -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Canvas Confetti -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+<!-- Loading Overlay -->
+<script src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@2.1.7/dist/loadingoverlay.min.js"></script>
+<!-- Sweet Alert -->
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- ApexCharts -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+```
+
+## Setup
+- **Primary machine:** Mac mini M4 (Harvey) - runs 24/7 with OpenClaw
+- **Secondary machine:** MacBook Pro - for dev/testing (separate Telegram bot)
+- **Default model:** Kimi K2.5 (cost-effective, primary)
+- **Fallback:** Claude Sonnet 4.6 (when needed)
+
+## Model Fallback Threshold Policy
+- If remaining quota drops below **15%** for either:
+  - **5-hour window**, or
+  - **daily window**
+- Then immediately switch fallback primary to **Kimi (`moonshot/kimi-k2.5`)** and notify user.
+
+## Active Model Stack (Current)
+1. **Primary (main chat):** `openai-codex/gpt-5.3-codex`
+2. **Fallback policy:** `moonshot/kimi-k2.5` (when quota < 15%)
+3. **On-demand:** Claude Code via command `run in claude code: ...`
+
+## Tiny Status Preference
+- When user types `/tinystatus`, reply in 4 separate lines exactly:
+  - `Used: X%`
+  - `Left: Y%`
+  - `5h Reset: <exact date time, GMT+7>`
+  - `Day Reset: <exact date time, GMT+7>`
+- Always provide exact reset date/time (no user math needed).
+
+## Quota Reminder Preference
+- User wants a proactive reminder when the weekly quota reset is within 24 hours, especially if there is still plenty of quota left to use.

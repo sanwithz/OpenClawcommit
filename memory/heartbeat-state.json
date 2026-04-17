@@ -1,0 +1,9 @@
+{
+  "lastChecks": {
+    "weeklyQuota": null
+  },
+  "preferences": {
+    "warnOnWeeklyResetWithinHours": 24,
+    "warnIfPlentyQuotaLeft": true
+  }
+}
