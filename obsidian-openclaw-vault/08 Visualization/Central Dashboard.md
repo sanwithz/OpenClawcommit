@@ -19,12 +19,18 @@ source:
 - [[Areas Dashboard]]
 - [[Reviews Dashboard]]
 - [[Knowledge Dashboard]]
+- [[Task Boards]]
+- [[Active Work Board]]
 
 ## Work Areas
 - [[../12 Operations/12.01 Inbox/README|Inbox]]
 - [[../12 Operations/12.02 Projects/Project Index|Project Index]]
 - [[../12 Operations/12.03 Areas/Area Index|Area Index]]
 - [[../12 Operations/12.04 Resources/Resource Index|Resource Index]]
+
+## Workflows
+- [[../04 Knowledge Workflows/Inbox Processing Workflow|Inbox Processing Workflow]]
+- [[../04 Knowledge Workflows/Weekly Review Workflow|Weekly Review Workflow]]
 
 ## Operating Rules
 - [[../00 Vault Foundation/RAG-Ready Vault Rules|RAG-Ready Vault Rules]]
@@ -46,6 +52,13 @@ TABLE status, area, file.mtime as Updated
 FROM "12 Operations/12.02 Projects"
 WHERE type = "project" AND status = "active"
 SORT file.mtime desc
+```
+
+### Open Inbox Tasks
+```dataview
+TASK
+FROM "12 Operations/12.01 Inbox"
+WHERE !completed
 ```
 
 ### Recent Daily Notes
