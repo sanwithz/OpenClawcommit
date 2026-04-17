@@ -135,6 +135,3 @@ When designing frontend, integrate these CDNs:
   - `5h Reset: <exact date time, GMT+7>`
   - `Day Reset: <exact date time, GMT+7>`
 - Always provide exact reset date/time (no user math needed).
-
-## Quota Reminder Preference
-- User wants a proactive reminder when the weekly quota reset is within 24 hours, especially if there is still plenty of quota left to use.
