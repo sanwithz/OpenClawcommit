@@ -8,15 +8,16 @@ CHAT_ID = "6796212791"
 
 payload = {
     "chat_id": CHAT_ID,
-    "text": "เลือกประเภท",
+    "text": "เลือกงานได้เลย 👇",
     "reply_markup": {
         "keyboard": [
-            [{"text": "👤 User"}, {"text": "⭐ Premium"}, {"text": "👽 Bot"}],
-            [{"text": "👥 Group"}, {"text": "📢 Channel"}, {"text": "💬 Forum"}],
-            [{"text": "👥 My Group"}, {"text": "📢 My Channel"}, {"text": "💬 My Forum"}]
+            [{"text": "Trade หาค่า API"}, {"text": "อยากรู้ราคาทองคำ"}],
+            [{"text": "Update journal"}, {"text": "บันทึกสิ่งที่ทำวันนี้ลงไปใน Journal"}],
+            [{"text": "/tinystatus"}, {"text": "/lifeOS"}, {"text": "/orchestra"}]
         ],
         "resize_keyboard": True,
-        "is_persistent": True
+        "is_persistent": True,
+        "input_field_placeholder": "แตะปุ่มหรือพิมพ์คำสั่งได้เลย"
     }
 }
 
