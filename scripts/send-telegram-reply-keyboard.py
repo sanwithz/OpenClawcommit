@@ -11,9 +11,9 @@ payload = {
     "text": "เลือกงานได้เลย 👇",
     "reply_markup": {
         "keyboard": [
-            [{"text": "Trade หาค่า API"}, {"text": "อยากรู้ราคาทองคำ"}],
-            [{"text": "Update journal"}, {"text": "บันทึกสิ่งที่ทำวันนี้ลงไปใน Journal"}],
-            [{"text": "/tinystatus"}, {"text": "/lifeOS"}, {"text": "/orchestra"}]
+            [{"text": "📈 Trade API"}, {"text": "🥇 ราคาทอง"}],
+            [{"text": "📝 Update journal"}, {"text": "📓 Journal"}],
+            [{"text": "📊 /tinystatus"}, {"text": "🎮 /lifeOS"}, {"text": "🎼 /orchestra"}]
         ],
         "resize_keyboard": True,
         "is_persistent": True,
