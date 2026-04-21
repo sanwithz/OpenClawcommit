@@ -1,0 +1,26 @@
+# Run Report
+
+- Time: 2026-04-21 16:51 Asia/Bangkok
+- Mode: C
+- Task: Add Telegram inline buttons for `phaya` command with usable Phaya media tool entries
+- Files read:
+  - /Users/harvey/.openclaw/workspace/scripts/telegram-menu-bot.mjs
+  - /Users/harvey/.openclaw/workspace/scripts/phaya-presets.mjs
+  - /Users/harvey/.openclaw/workspace/_control/GOVERNANCE.md
+  - /Users/harvey/.openclaw/workspace/_control/ACTIVE_GUARDS.md
+  - /Users/harvey/.openclaw/workspace/_control/LESSONS.md
+  - /Users/harvey/.openclaw/workspace/TOOLS.md
+- Backup created:
+  - archive/2026-04-21_165158/telegram-menu-bot.mjs
+- Files changed:
+  - /Users/harvey/.openclaw/workspace/scripts/telegram-menu-bot.mjs
+- Change made:
+  - Added `phaya` / `/phaya` trigger to open a Telegram inline keyboard
+  - Added inline buttons for all requested Phaya media tools
+  - Added callback handling that returns ready-to-use example commands for each preset shortcut script
+- QC:
+  - Verified syntax with `node --check scripts/telegram-menu-bot.mjs`
+  - Verified supporting preset script syntax with `node --check scripts/phaya-presets.mjs`
+- Notes:
+  - Button actions currently send usage/example commands, which is immediately usable
+  - Future enhancement can make buttons launch guided form flows or actual API jobs directly

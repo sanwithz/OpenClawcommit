@@ -39,33 +39,6 @@ const BOTCM_ITEMS = {
   help: { text: '❓ Help', callback: 'oc_help' }
 };
 
-const PHAYA_ITEMS = [
-  { text: '🖼️ Image Generate', callback: 'phaya_image-generate' },
-  { text: '🍌 Nano Banana 2', callback: 'phaya_nano-banana-2' },
-  { text: '🌈 Seedream 5', callback: 'phaya_seedream-5' },
-  { text: '🎵 Music Generate', callback: 'phaya_music-generate' },
-  { text: '🗣️ TTS', callback: 'phaya_tts' },
-  { text: '🎬 AI Video Sora2', callback: 'phaya_ai-video-sora2' },
-  { text: '🎥 Sora2 T2V', callback: 'phaya_sora2-text2video' },
-  { text: '📹 Veo 3.1', callback: 'phaya_veo-3-1-video' },
-  { text: '💃 Seedance', callback: 'phaya_seedance-video' },
-  { text: '🧠 Grok Video', callback: 'phaya_grok-imagine-video' },
-  { text: '🎮 Kling Motion', callback: 'phaya_kling-motion-control' },
-  { text: '🧍 Sora2 Character', callback: 'phaya_sora2-character' },
-  { text: '⬇️ Download Video', callback: 'phaya_video-download' },
-  { text: '🇹🇭 Thai Subtitle', callback: 'phaya_thai-subtitle' },
-  { text: '🖼️➡️🎥 Image2Video', callback: 'phaya_image2video' },
-  { text: '🔊 Merge Audio', callback: 'phaya_merge-audio' },
-  { text: '🎞️+🔊 Merge AV', callback: 'phaya_merge-audio-video' },
-  { text: '📼 Merge Video', callback: 'phaya_merge-video' },
-  { text: '✨ Overlay GIF', callback: 'phaya_overlay-gif' },
-  { text: '🔤 Overlay Text', callback: 'phaya_overlay-text' },
-  { text: '🖼️ Last Frame', callback: 'phaya_extract-last-frame' },
-  { text: '🎞️ GIF', callback: 'phaya_video-to-gif' },
-  { text: '📝 Transcribe', callback: 'phaya_transcribe' },
-  { text: '📍 Job Status', callback: 'phaya_job-status' }
-];
-
 async function telegram(method, payload) {
   const res = await fetch(`${API_URL}/${method}`, {
     method: 'POST',
@@ -184,23 +157,6 @@ async function handleBotCMCommand(chatId) {
   await sendMessage(chatId, buildBotCMText(), buildBotCMKeyboard());
 }
 
-function buildPhayaKeyboard() {
-  const rows = [];
-  for (let i = 0; i < PHAYA_ITEMS.length; i += 2) {
-    rows.push(PHAYA_ITEMS.slice(i, i + 2).map(item => ({ text: item.text, callback_data: item.callback })));
-  }
-  rows.push([{ text: '🔙 กลับ botCM', callback_data: 'back_to_botcm' }]);
-  return { inline_keyboard: rows };
-}
-
-function buildPhayaText() {
-  return `<b>🎛️ Phaya Media Tools</b>\n\nเลือกเครื่องมือที่ต้องการ แล้วผมจะส่ง format ตัวอย่างสำหรับใช้งานทันที\n\n• Image / Video / Audio / Subtitle / Transcribe\n• ใช้กับ preset scripts ที่สร้างไว้แล้ว`;
-}
-
-async function handlePhayaCommand(chatId) {
-  await sendMessage(chatId, buildPhayaText(), buildPhayaKeyboard());
-}
-
 async function getTinyStatusText() {
   const status = await runOpenClawSafe(['status', '--usage', '--json']);
   if (!status.ok || !status.stdout) {
@@ -300,36 +256,6 @@ async function executeBotCMAction(data) {
   }
 }
 
-function buildPhayaExample(preset) {
-  const examples = {
-    'image-generate': `🖼️ <b>Image Generate</b>\n\n<code>scripts/phaya-image-generate '{"prompt":"A serene mountain landscape at sunset","aspect_ratio":"16:9"}'</code>`,
-    'nano-banana-2': `🍌 <b>Nano Banana 2</b>\n\n<code>scripts/phaya-nano-banana-2 '{"prompt":"Cute orange cat astronaut","aspect_ratio":"1:1"}'</code>`,
-    'seedream-5': `🌈 <b>Seedream 5.0</b>\n\n<code>scripts/phaya-seedream-5 '{"prompt":"Luxury modern house in tropical forest","aspect_ratio":"16:9"}'</code>`,
-    'music-generate': `🎵 <b>Music Generate</b>\n\n<code>scripts/phaya-music-generate '{"prompt":"Lo-fi chill beat for studying"}'</code>`,
-    'tts': `🗣️ <b>Text to Speech</b>\n\n<code>scripts/phaya-tts '{"text":"สวัสดีครับ"}'</code>`,
-    'ai-video-sora2': `🎬 <b>AI Video Sora 2</b>\n\n<code>scripts/phaya-ai-video-sora2 '{"prompt":"A cinematic walk through neon Bangkok at night"}'</code>`,
-    'sora2-text2video': `🎥 <b>Sora2 Text-to-Video</b>\n\n<code>scripts/phaya-sora2-text2video '{"prompt":"A drone flyover of temples at sunrise"}'</code>`,
-    'veo-3-1-video': `📹 <b>Veo 3.1 Video</b>\n\n<code>scripts/phaya-veo-3-1-video '{"prompt":"Product ad for a smartwatch"}'</code>`,
-    'seedance-video': `💃 <b>Seedance Video</b>\n\n<code>scripts/phaya-seedance-video '{"prompt":"Stylized dance motion video"}'</code>`,
-    'grok-imagine-video': `🧠 <b>Grok Imagine Video</b>\n\n<code>scripts/phaya-grok-imagine-video '{"prompt":"Sci-fi city cinematic sequence"}'</code>`,
-    'kling-motion-control': `🎮 <b>Kling Motion Control</b>\n\n<code>scripts/phaya-kling-motion-control '{"image_url":"https://example.com/image.jpg","motion":"camera pan left"}'</code>`,
-    'sora2-character': `🧍 <b>Sora2 Character</b>\n\n<code>scripts/phaya-sora2-character '{"prompt":"Anime hero turnaround"}'</code>`,
-    'video-download': `⬇️ <b>Download Video</b>\n\n<code>scripts/phaya-video-download '{"url":"https://example.com/video.mp4"}'</code>`,
-    'thai-subtitle': `🇹🇭 <b>Thai Subtitle</b>\n\n<code>scripts/phaya-thai-subtitle '{"video_url":"https://example.com/video.mp4"}'</code>`,
-    'image2video': `🖼️➡️🎥 <b>Image to Video</b>\n\n<code>scripts/phaya-image2video '{"image_url":"https://example.com/image.jpg","duration":5}'</code>`,
-    'merge-audio': `🔊 <b>Merge Audio</b>\n\n<code>scripts/phaya-merge-audio '{"audio_urls":["https://example.com/a.mp3","https://example.com/b.mp3"]}'</code>`,
-    'merge-audio-video': `🎞️+🔊 <b>Merge Audio + Video</b>\n\n<code>scripts/phaya-merge-audio-video '{"video_url":"https://example.com/video.mp4","audio_url":"https://example.com/audio.mp3"}'</code>`,
-    'merge-video': `📼 <b>Merge Video</b>\n\n<code>scripts/phaya-merge-video '{"video_urls":["https://example.com/a.mp4","https://example.com/b.mp4"]}'</code>`,
-    'overlay-gif': `✨ <b>Overlay GIF</b>\n\n<code>scripts/phaya-overlay-gif '{"video_url":"https://example.com/video.mp4","gif_url":"https://example.com/overlay.gif"}'</code>`,
-    'overlay-text': `🔤 <b>Overlay Text</b>\n\n<code>scripts/phaya-overlay-text '{"video_url":"https://example.com/video.mp4","text":"Hello world"}'</code>`,
-    'extract-last-frame': `🖼️ <b>Extract Last Frame</b>\n\n<code>scripts/phaya-extract-last-frame '{"video_url":"https://example.com/video.mp4"}'</code>`,
-    'video-to-gif': `🎞️ <b>Video to GIF</b>\n\n<code>scripts/phaya-video-to-gif '{"video_url":"https://example.com/video.mp4"}'</code>`,
-    'transcribe': `📝 <b>Transcribe</b>\n\n<code>scripts/phaya-transcribe '{"audio_url":"https://example.com/audio.mp3"}'</code>`,
-    'job-status': `📍 <b>Job Status</b>\n\n<code>scripts/phaya-job-status '{"job_id":"YOUR_JOB_ID"}'</code>`
-  };
-  return examples[preset] || `❌ ไม่มีตัวอย่างสำหรับ <code>${escapeHtml(preset)}</code>`;
-}
-
 async function handleCallback(callbackQuery) {
   const { id: callbackId, message, data } = callbackQuery;
   const chatId = message.chat.id;
@@ -380,24 +306,12 @@ async function handleCallback(callbackQuery) {
       await handleBotCMCommand(chatId);
       return;
 
-    case 'back_to_phaya':
-      await handlePhayaCommand(chatId);
-      return;
-
     default:
       if (data.startsWith('oc_')) {
         responseText = await executeBotCMAction(data);
         additionalKeyboard = {
           inline_keyboard: [
             [{ text: '🔙 กลับ botCM', callback_data: 'back_to_botcm' }]
-          ]
-        };
-      } else if (data.startsWith('phaya_')) {
-        const preset = data.replace(/^phaya_/, '');
-        responseText = buildPhayaExample(preset);
-        additionalKeyboard = {
-          inline_keyboard: [
-            [{ text: '🔙 กลับ Phaya', callback_data: 'back_to_phaya' }]
           ]
         };
       } else {
@@ -415,11 +329,6 @@ function isBotCMCommand(text = '') {
   return normalized === 'botcm' || normalized === '/botcm';
 }
 
-function isPhayaCommand(text = '') {
-  const normalized = String(text || '').trim().toLowerCase();
-  return normalized === 'phaya' || normalized === '/phaya';
-}
-
 async function getUpdates() {
   try {
     const res = await fetch(`${API_URL}/getUpdates?offset=${lastUpdateId + 1}&limit=20`);
@@ -435,10 +344,6 @@ async function getUpdates() {
 
       if (isBotCMCommand(update.message?.text)) {
         await handleBotCMCommand(update.message.chat.id);
-      }
-
-      if (isPhayaCommand(update.message?.text)) {
-        await handlePhayaCommand(update.message.chat.id);
       }
 
       if (update.callback_query) {
