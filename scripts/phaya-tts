@@ -1,0 +1,3 @@
+#!/bin/zsh
+export PHAYA_API_KEY="${PHAYA_API_KEY:-pk_MU6zPtnaWXYHRBirWkASGiAQhOxEfeJpnQp9NgNmTLcLE7s5}"
+node /Users/harvey/.openclaw/workspace/scripts/phaya-presets.mjs tts "$@"
