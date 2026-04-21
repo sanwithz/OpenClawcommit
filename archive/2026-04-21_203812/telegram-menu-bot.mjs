@@ -67,7 +67,6 @@ const PHAYA_ITEMS = [
 ];
 
 const phayaWizardState = new Map();
-const phayaPendingImage2Video = new Map();
 
 async function telegram(method, payload) {
   const res = await fetch(`${API_URL}/${method}`, {
@@ -84,15 +83,6 @@ async function sendMessage(chatId, text, replyMarkup = null) {
   const payload = { chat_id: chatId, text, parse_mode: 'HTML' };
   if (replyMarkup) payload.reply_markup = replyMarkup;
   return telegram('sendMessage', payload);
-}
-
-async function sendVideo(chatId, videoUrl, caption = '') {
-  return telegram('sendVideo', {
-    chat_id: chatId,
-    video: videoUrl,
-    caption,
-    parse_mode: 'HTML'
-  });
 }
 
 async function answerCallback(callbackId, text = '') {
@@ -131,17 +121,12 @@ async function runOpenClawSafe(args) {
   }
 }
 
-async function runScriptSafe(scriptName, args = []) {
+async function runScriptSafe(scriptName, jsonPayload) {
   try {
-    const normalizedArgs = Array.isArray(args) ? args : [args];
-    const { stdout, stderr } = await execFileAsync(`/Users/harvey/.openclaw/workspace/scripts/${scriptName}`, normalizedArgs, {
+    const { stdout, stderr } = await execFileAsync(`/Users/harvey/.openclaw/workspace/scripts/${scriptName}`, [jsonPayload], {
       timeout: 120000,
       maxBuffer: 1024 * 1024 * 4,
-      env: {
-        ...process.env,
-        PHAYA_API_KEY: process.env.PHAYA_API_KEY || 'pk_MU6zPtnaWXYHRBirWkASGiAQhOxEfeJpnQp9NgNmTLcLE7s5',
-        IMGBB_API_KEY: process.env.IMGBB_API_KEY || '115aad0d48571f740cf04ae968f12c16'
-      }
+      env: { ...process.env, PHAYA_API_KEY: process.env.PHAYA_API_KEY || 'pk_MU6zPtnaWXYHRBirWkASGiAQhOxEfeJpnQp9NgNmTLcLE7s5' }
     });
     return { ok: true, stdout: stdout?.trim() || '', stderr: stderr?.trim() || '' };
   } catch (error) {
@@ -275,80 +260,8 @@ async function startPhayaWizard(chatId, preset) {
   return `🧙 <b>Phaya Wizard: ${escapeHtml(item?.text || preset)}</b>\n\n${escapeHtml(buildWizardPrompt(preset))}\n\nส่งมาเป็น JSON ได้เลย แล้วผมจะยิงงานให้ทันที`;
 }
 
-async function pollPhayaJobUntilDone(chatId, jobId, maxAttempts = 15, delayMs = 8000) {
-  for (let i = 0; i < maxAttempts; i++) {
-    const result = await runScriptSafe('phaya-job-status', [JSON.stringify({ job_id: jobId })]);
-    if (!result.ok) {
-      await new Promise(r => setTimeout(r, delayMs));
-      continue;
-    }
-
-    let json;
-    try {
-      json = JSON.parse(result.stdout);
-    } catch {
-      await new Promise(r => setTimeout(r, delayMs));
-      continue;
-    }
-
-    const data = json?.data || {};
-    const videoUrl = data?.video_url || data?.url || data?.result?.video_url || null;
-    const status = data?.status || data?.result?.status || 'unknown';
-
-    if (videoUrl) {
-      await sendVideo(chatId, videoUrl, `🎬 <b>Phaya video ready</b>\nJob: <code>${escapeHtml(jobId)}</code>`);
-      return true;
-    }
-
-    if (String(status).toLowerCase() === 'failed') {
-      await sendMessage(chatId, `❌ <b>Phaya job failed</b>\n\nJob: <code>${escapeHtml(jobId)}</code>`);
-      return false;
-    }
-
-    await new Promise(r => setTimeout(r, delayMs));
-  }
-
-  await sendMessage(chatId, `⏳ <b>Phaya job still processing</b>\n\nJob: <code>${escapeHtml(jobId)}</code>\nใช้ปุ่ม Job Status เช็กต่อได้`);
-  return false;
-}
-
 async function maybeHandlePhayaWizardMessage(message) {
   const chatId = String(message.chat.id);
-  const pendingImage2Video = phayaPendingImage2Video.get(chatId);
-
-  if (pendingImage2Video) {
-    const photo = message.photo?.[message.photo.length - 1];
-    if (!photo) return false;
-
-    const fileRes = await telegram('getFile', { file_id: photo.file_id });
-    const filePath = fileRes?.result?.file_path;
-    if (!filePath) {
-      await sendMessage(message.chat.id, '❌ ดึงไฟล์จาก Telegram ไม่สำเร็จ');
-      phayaPendingImage2Video.delete(chatId);
-      return true;
-    }
-
-    const fileUrl = `https://api.telegram.org/file/bot${TOKEN}/${filePath}`;
-    const imageRes = await fetch(fileUrl);
-    const buffer = Buffer.from(await imageRes.arrayBuffer());
-    const localPath = `/tmp/phaya-image2video-${Date.now()}.jpg`;
-    await import('node:fs/promises').then(fs => fs.writeFile(localPath, buffer));
-
-    const result = await runScriptSafe('phaya-image2video-from-file', [localPath, '5']);
-    phayaPendingImage2Video.delete(chatId);
-
-    if (!result.ok) {
-      await sendMessage(message.chat.id, `❌ <b>Phaya image2video failed</b>\n\n<pre>${escapeHtml((result.stderr || result.stdout || result.message || '').slice(0, 3500))}</pre>`);
-      return true;
-    }
-
-    const json = JSON.parse(result.stdout);
-    const jobId = json?.phaya?.data?.job_id;
-    await sendMessage(message.chat.id, `✅ <b>Image2Video submitted</b>\n\nJob: <code>${escapeHtml(jobId || 'unknown')}</code>\nกำลังรอวิดีโอ...`);
-    if (jobId) await pollPhayaJobUntilDone(message.chat.id, jobId);
-    return true;
-  }
-
   const state = phayaWizardState.get(chatId);
   if (!state) return false;
 
@@ -356,7 +269,7 @@ async function maybeHandlePhayaWizardMessage(message) {
   if (!text) return false;
 
   const scriptName = `phaya-${state.preset}`;
-  const result = await runScriptSafe(scriptName, [text]);
+  const result = await runScriptSafe(scriptName, text);
   phayaWizardState.delete(chatId);
 
   if (result.ok) {
@@ -568,8 +481,7 @@ async function handleCallback(callbackQuery) {
         const item = getPhayaItemByPreset(preset);
         if (item?.verified) {
           if (preset === 'image2video') {
-            phayaPendingImage2Video.set(String(chatId), { startedAt: Date.now() });
-            responseText = '📸 <b>Phaya Image2Video</b>\n\nส่งรูปมาได้เลย 1 รูป\nผมจะอัปโหลด -> ส่งเข้า Phaya -> รอผล -> ส่งวิดีโอกลับให้อัตโนมัติ';
+            responseText = await startPhayaWizard(chatId, preset);
           } else {
             responseText = buildPhayaExample(preset);
           }
@@ -620,10 +532,6 @@ async function getUpdates() {
 
       if (isPhayaCommand(update.message?.text)) {
         await handlePhayaCommand(update.message.chat.id);
-      }
-
-      if (await maybeHandlePhayaWizardMessage(update.message || {})) {
-        continue;
       }
 
       if (update.callback_query) {

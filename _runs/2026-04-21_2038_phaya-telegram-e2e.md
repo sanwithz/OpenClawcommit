@@ -1,0 +1,25 @@
+# Run Report
+
+- Time: 2026-04-21 20:38 Asia/Bangkok
+- Mode: C
+- Task: Wire Telegram media intake + auto status polling + send video back for Phaya image2video end-to-end button flow
+- Files read:
+  - /Users/harvey/.openclaw/workspace/scripts/telegram-menu-bot.mjs
+  - /Users/harvey/.openclaw/workspace/scripts/phaya-image2video-from-file.mjs
+  - /Users/harvey/.openclaw/workspace/scripts/phaya-job-status
+  - /Users/harvey/.openclaw/workspace/docs/PHAYA_WRAPPER.md
+  - /Users/harvey/.openclaw/workspace/_control/GOVERNANCE.md
+  - /Users/harvey/.openclaw/workspace/_control/ACTIVE_GUARDS.md
+  - /Users/harvey/.openclaw/workspace/_control/LESSONS.md
+- Backup created:
+  - archive/2026-04-21_203812/telegram-menu-bot.mjs
+- Files changed:
+  - /Users/harvey/.openclaw/workspace/scripts/telegram-menu-bot.mjs
+- Change made:
+  - Added Telegram photo intake for verified Phaya image2video flow
+  - Added automatic download of Telegram photo, local temp save, imgbb upload, Phaya submission, job polling, and video send-back
+  - Added polling loop with fallback status message if video is still processing
+- QC:
+  - Verified script syntax with `node --check`
+- Notes:
+  - Button flow for Image2Video is now designed for one-click start + one photo message + auto completion handling
