@@ -1,0 +1,27 @@
+# Run Report
+
+- Time: 2026-04-21 20:28 Asia/Bangkok
+- Mode: C
+- Task: Build end-to-end flow for local image -> imgbb -> Phaya image2video
+- Files read:
+  - /Users/harvey/.openclaw/workspace/TOOLS.md
+  - /Users/harvey/.openclaw/workspace/scripts/phaya-image2video
+  - /Users/harvey/.openclaw/workspace/scripts/phaya-presets.mjs
+- Backup created:
+  - archive/2026-04-21_202813/
+- Files created:
+  - /Users/harvey/.openclaw/workspace/scripts/imgbb-upload.mjs
+  - /Users/harvey/.openclaw/workspace/scripts/phaya-image2video-from-file.mjs
+  - /Users/harvey/.openclaw/workspace/scripts/phaya-image2video-from-file
+- Files updated:
+  - /Users/harvey/.openclaw/workspace/docs/PHAYA_WRAPPER.md
+- Change made:
+  - Added imgbb upload helper for local files
+  - Added end-to-end script that uploads local image to imgbb and submits it to Phaya image2video
+  - Added docs for the working flow
+- QC:
+  - Verified imgbb upload works with attached local Telegram image
+  - Verified full end-to-end Phaya job submission works successfully
+  - Confirmed returned job_id: `29365e7c-cb31-4316-9b1d-ddbf722ca8e2`
+- Notes:
+  - Working public image URL from test: `https://i.ibb.co/PZsyM0yV/0dad91635b09.jpg`

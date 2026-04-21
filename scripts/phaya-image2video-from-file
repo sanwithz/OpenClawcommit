@@ -1,0 +1,2 @@
+#!/bin/zsh
+node /Users/harvey/.openclaw/workspace/scripts/phaya-image2video-from-file.mjs "$@"

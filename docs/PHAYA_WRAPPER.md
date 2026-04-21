@@ -7,8 +7,10 @@ Wrapper script for calling Phaya API endpoints from OpenClaw workflows, shell sc
 ```bash
 scripts/phaya-wrapper.mjs
 scripts/phaya-presets.mjs
-scripts/phaya-tts
-scripts/phaya-image2video
+scripts/imgbb-upload.mjs
+scripts/phaya-image2video-from-file.mjs
+scripts/phaya-image2video-from-file
+scripts/phaya-*
 ```
 
 ## Environment
@@ -16,6 +18,44 @@ scripts/phaya-image2video
 ```bash
 export PHAYA_API_KEY='YOUR_PHAYA_KEY'
 export PHAYA_BASE_URL='https://api.phaya.io/api/v1'
+export IMGBB_API_KEY='YOUR_IMGBB_KEY'
+```
+
+## End-to-End Image2Video
+
+This flow is now fully working:
+
+1. Upload local image to imgbb
+2. Get public image URL
+3. Send URL to Phaya image-to-video
+
+### One command
+
+```bash
+scripts/phaya-image2video-from-file /path/to/image.jpg 5
+```
+
+### Example output
+
+```json
+{
+  "ok": true,
+  "upload": {
+    "imageUrl": "https://i.ibb.co/...jpg"
+  },
+  "phaya": {
+    "data": {
+      "job_id": "...",
+      "status": "processing"
+    }
+  }
+}
+```
+
+## imgbb upload only
+
+```bash
+node scripts/imgbb-upload.mjs /path/to/image.jpg
 ```
 
 ## Generic Wrapper
@@ -26,12 +66,6 @@ export PHAYA_BASE_URL='https://api.phaya.io/api/v1'
 node scripts/phaya-wrapper.mjs image-to-video/create '{"image_url":"https://example.com/image.jpg","duration":5}'
 ```
 
-### POST with stdin JSON
-
-```bash
-echo '{"voice":"nova","text":"สวัสดี"}' | node scripts/phaya-wrapper.mjs tts/create --stdin
-```
-
 ## Preset Commands
 
 List all presets:
@@ -40,77 +74,61 @@ List all presets:
 node scripts/phaya-presets.mjs --list
 ```
 
-### Main presets included
+Verify candidate endpoints for one preset:
 
-- `image-generate`
-- `nano-banana-2`
-- `seedream-5`
-- `music-generate`
+```bash
+node scripts/phaya-presets.mjs tts '{"text":"hello"}' --verify
+```
+
+## Included shortcuts
+
+```bash
+scripts/phaya-image-generate
+scripts/phaya-nano-banana-2
+scripts/phaya-seedream-5
+scripts/phaya-music-generate
+scripts/phaya-tts
+scripts/phaya-ai-video-sora2
+scripts/phaya-sora2-text2video
+scripts/phaya-veo-3-1-video
+scripts/phaya-seedance-video
+scripts/phaya-grok-imagine-video
+scripts/phaya-kling-motion-control
+scripts/phaya-sora2-character
+scripts/phaya-video-download
+scripts/phaya-thai-subtitle
+scripts/phaya-image2video
+scripts/phaya-image2video-from-file
+scripts/phaya-merge-audio
+scripts/phaya-merge-audio-video
+scripts/phaya-merge-video
+scripts/phaya-overlay-gif
+scripts/phaya-overlay-text
+scripts/phaya-extract-last-frame
+scripts/phaya-video-to-gif
+scripts/phaya-transcribe
+scripts/phaya-job-status
+```
+
+## Real-world status so far
+
+### Confirmed working
+
+- `image2video` → `image-to-video/create`
+- `imgbb` upload flow
+- `phaya-image2video-from-file` end-to-end
+
+### Needs endpoint verification
+
 - `tts`
-- `ai-video-sora2`
-- `sora2-text2video`
-- `veo-3-1-video`
-- `seedance-video`
-- `grok-imagine-video`
-- `kling-motion-control`
-- `sora2-character`
-- `video-download`
-- `thai-subtitle`
-- `image2video`
-- `merge-audio`
-- `merge-audio-video`
+- `image-generate`
 - `merge-video`
-- `overlay-gif`
-- `overlay-text`
-- `extract-last-frame`
-- `video-to-gif`
 - `transcribe`
-- `job-status`
-
-### TTS example
-
-```bash
-node scripts/phaya-presets.mjs tts '{"text":"สวัสดีครับ","voice":"nova"}'
-```
-
-Shortcut:
-
-```bash
-scripts/phaya-tts '{"text":"สวัสดีครับ","voice":"nova"}'
-```
-
-### Image to Video example
-
-```bash
-node scripts/phaya-presets.mjs image2video '{"image_url":"https://example.com/image.jpg","duration":5}'
-```
-
-Shortcut:
-
-```bash
-scripts/phaya-image2video '{"image_url":"https://example.com/image.jpg","duration":5}'
-```
-
-## n8n Usage
-
-Use an **Execute Command** node:
-
-```bash
-node /Users/harvey/.openclaw/workspace/scripts/phaya-presets.mjs tts '{"text":"hello"}'
-```
-
-## OpenClaw Usage
-
-Use via `exec`:
-
-```bash
-export PHAYA_API_KEY='YOUR_PHAYA_KEY'
-node scripts/phaya-presets.mjs image-generate '{"prompt":"A serene mountain landscape at sunset","aspect_ratio":"16:9"}'
-```
+- and the rest of the preset list
 
 ## Notes
 
 - Auth header used: `Authorization: Bearer <PHAYA_API_KEY>`
 - Default base URL: `https://api.phaya.io/api/v1`
-- Presets are endpoint aliases; exact payload fields depend on Phaya docs for each endpoint
-- `scripts/phaya-tts` and `scripts/phaya-image2video` currently default to the provided API key if `PHAYA_API_KEY` is not already set
+- Presets use candidate endpoint fallbacks and can auto-try multiple likely paths
+- `--verify` helps test which endpoint name is real
