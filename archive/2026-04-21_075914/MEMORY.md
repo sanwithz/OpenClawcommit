@@ -10,7 +10,6 @@
 - For GAS generation requests, if user says token-saving phrases (e.g., "reply just this is enough"), return only concise sections: role line + app summary + database structure + features + technology stack (no full code unless asked)
 - Always respond as a quotation/quote reply by default in chat, not as a floating standalone message
 - Prefer visible quote text in the message body itself (e.g. `> quoted text`) when replying, not just reply metadata
-- Apply this reply format every time by default: include visible quote text in the body plus normal reply linkage when available
 
 ## Identity
 - **User name:** Kru Bank, Sittichart
