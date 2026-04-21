@@ -1,0 +1,372 @@
+{
+  "name": "Phaya Image2Video Telegram",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "phaya-image2video-telegram",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "Webhook_Telegram_In",
+      "name": "Webhook Telegram In",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 300],
+      "webhookId": "phaya-image2video-telegram"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.telegram.org/file/bot{{$env.TELEGRAM_BOT_TOKEN}}/{{$json.body.message.photo[$json.body.message.photo.length - 1].file_path}}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "HTTP_Download_Telegram_File",
+      "name": "Download Telegram File",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telegram.org/bot{{$env.TELEGRAM_BOT_TOKEN}}/getFile",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"file_id\": $json.body.message.photo[$json.body.message.photo.length - 1].file_id }",
+        "options": {}
+      },
+      "id": "HTTP_Get_Telegram_File_Path",
+      "name": "Get Telegram File Path",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.imgbb.com/1/upload?expiration=600&key={{$env.IMGBB_API_KEY}}",
+        "sendBinaryData": true,
+        "binaryPropertyName": "data",
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "image",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "HTTP_Upload_ImgBB",
+      "name": "Upload to imgbb",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1150, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.phaya.io/api/v1/image-to-video/create",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"image_url\": $json.data.url, \"duration\": 5 }",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.PHAYA_API_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "HTTP_Submit_Phaya_Image2Video",
+      "name": "Submit Phaya Image2Video",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1400, 300]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "seconds",
+              "secondsInterval": 10
+            }
+          ]
+        }
+      },
+      "id": "Wait_10s",
+      "name": "Wait 10s",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [1650, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.phaya.io/api/v1/jobs/status",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"job_id\": $node[\"Submit Phaya Image2Video\"].json.job_id }",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.PHAYA_API_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "HTTP_Check_Phaya_Status",
+      "name": "Check Phaya Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1900, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.video_url || ''}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "id": "IF_Video_Ready",
+      "name": "Video Ready?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2150, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telegram.org/bot{{$env.TELEGRAM_BOT_TOKEN}}/sendVideo",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "chat_id",
+              "value": "={{$node[\"Webhook Telegram In\"].json.body.message.chat.id}}"
+            },
+            {
+              "name": "video",
+              "value": "={{$json.video_url}}"
+            },
+            {
+              "name": "caption",
+              "value": "=🎬 Phaya video ready\nJob ID: {{$node[\"Submit Phaya Image2Video\"].json.job_id}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "HTTP_Send_Video_Back_Telegram",
+      "name": "Send Video Back to Telegram",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [2400, 220]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"ok\": true, \"job_id\": $node[\"Submit Phaya Image2Video\"].json.job_id, \"status\": \"processing\" }",
+        "options": {}
+      },
+      "id": "Respond_Queued",
+      "name": "Respond Queued",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1650, 120]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"ok\": true, \"video_url\": $json.video_url, \"job_id\": $node[\"Submit Phaya Image2Video\"].json.job_id }",
+        "options": {}
+      },
+      "id": "Respond_Done",
+      "name": "Respond Done",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [2650, 220]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.telegram.org/bot{{$env.TELEGRAM_BOT_TOKEN}}/sendMessage",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={ \"chat_id\": $node[\"Webhook Telegram In\"].json.body.message.chat.id, \"text\": \"⏳ Still processing... retrying in 10s\" }",
+        "options": {}
+      },
+      "id": "HTTP_Send_Processing_Message",
+      "name": "Send Processing Message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [2400, 380]
+    }
+  ],
+  "connections": {
+    "Webhook Telegram In": {
+      "main": [
+        [
+          {
+            "node": "HTTP_Get_Telegram_File_Path",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Respond Queued",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP_Get_Telegram_File_Path": {
+      "main": [
+        [
+          {
+            "node": "Download Telegram File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Telegram File": {
+      "main": [
+        [
+          {
+            "node": "Upload to imgbb",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to imgbb": {
+      "main": [
+        [
+          {
+            "node": "Submit Phaya Image2Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Submit Phaya Image2Video": {
+      "main": [
+        [
+          {
+            "node": "Wait 10s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 10s": {
+      "main": [
+        [
+          {
+            "node": "Check Phaya Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Phaya Status": {
+      "main": [
+        [
+          {
+            "node": "Video Ready?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Video Ready?": {
+      "main": [
+        [
+          {
+            "node": "Send Video Back to Telegram",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Respond Done",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Processing Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Processing Message": {
+      "main": [
+        [
+          {
+            "node": "Wait 10s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Video Back to Telegram": {
+      "main": [
+        [
+          {
+            "node": "Respond Done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "phaya-image2video-telegram-v1",
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "id": "phaya-image2video-telegram"
+}
