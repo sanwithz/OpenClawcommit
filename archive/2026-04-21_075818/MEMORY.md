@@ -9,7 +9,6 @@
 - Skip filler phrases like "Great question!" or "I'd be happy to help!"
 - For GAS generation requests, if user says token-saving phrases (e.g., "reply just this is enough"), return only concise sections: role line + app summary + database structure + features + technology stack (no full code unless asked)
 - Always respond as a quotation/quote reply by default in chat, not as a floating standalone message
-- Prefer visible quote text in the message body itself (e.g. `> quoted text`) when replying, not just reply metadata
 
 ## Identity
 - **User name:** Kru Bank, Sittichart
