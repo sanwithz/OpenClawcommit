@@ -2,7 +2,7 @@
 
 _Learn about the person you're helping. Update this as you go._
 
-- **Name:** Kru Bank, Sittichart
+- **Name:** Kru Bank
 - **What to call them:** Kru Bank
 - **Pronouns:** _(optional)_
 - **Timezone:** Asia/Bangkok
